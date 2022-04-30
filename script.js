@@ -5,6 +5,13 @@ class AnaliticVideoPlayer {
     this.svgHolder = document.createElement("div");
     this.video = document.getElementById("main-video");
 
+    //for editing width and moving curve
+    this.coverL;
+
+    //for time handling
+    this.interval;
+
+    //use pathGenerator.js
     let pathHandler = new pathGenerator();
 
     //after loading metadata of video
@@ -12,17 +19,25 @@ class AnaliticVideoPlayer {
       this.vidWidth = this.video.videoWidth;
       this.vidHeight = this.video.videoHeight;
       this.vidDuration = this.video.duration * 1000;
+
       let svg = this.prepareSVG(this.vidWidth, this.vidHeight);
+
       let paths = [];
       dataSet.map((dataRow) => {
-        let points = this.prepareData(dataRow.data);
+        let points = this.prepareData(
+          dataRow.data,
+          this.vidWidth,
+          this.vidHeight
+        );
         let path = pathHandler.svgPath(points, dataRow.color);
         paths.push(path);
       });
       svg.innerHTML = [...paths];
-      this.videoPlayer.appendChild(svg);
+      this.prepareCover(this.vidWidth, this.vidHeight, svg);
+      this.prepareListeners();
     });
   }
+
   prepareSVG(width, height) {
     let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
@@ -30,14 +45,61 @@ class AnaliticVideoPlayer {
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     svg.setAttribute("width", width);
     svg.setAttribute("height", height);
+
     return svg;
   }
-  prepareData(data) {
+
+  prepareData(data, vidWidth, vidHeight) {
     let points = [];
     for (let i = 0; i < data.length; i++) {
-      points[i] = [i * 100, 100 - data[i]];
+      points[i] = [
+        i * (vidWidth / (data.length - 1)),
+        ((100 - data[i]) / 100) * vidHeight,
+      ];
     }
     return points;
+  }
+
+  prepareCover(width, height, svgTo, svgFrom) {
+    let coverHolder = document.createElement("div");
+    let coverL = document.createElement("div");
+    let coverR = document.createElement("div");
+    coverHolder.appendChild(coverL);
+    coverHolder.appendChild(coverR);
+
+    coverHolder.style.width = width + "px";
+    coverHolder.style.height = height + "px";
+    coverHolder.classList.add("coverHolder");
+
+    coverL.style.width = "100px";
+    coverL.style.overflow = "hidden";
+    if (svgTo != undefined) {
+      coverL.appendChild(svgTo);
+    }
+
+    coverR.style.flexGrow = 1;
+    coverR.style.pointerEvents = "none";
+    if (svgFrom != undefined) {
+      coverR.appendChild(svgFrom);
+    }
+
+    this.coverL = coverL;
+    this.videoPlayer.appendChild(coverHolder);
+  }
+  prepareListeners() {
+    this.video.addEventListener("play", () => {
+      this.interval = setInterval(() => {
+        this.updateCover(this.video.currentTime / this.vidDuration);
+      }, 10);
+    });
+    this.video.addEventListener("pause", () => {
+      clearInterval(this.interval);
+      this.updateCover(this.video.currentTime / this.vidDuration);
+    });
+  }
+  updateCover(percents) {
+    console.log(percents);
+    this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
   }
 }
 
@@ -52,7 +114,7 @@ let dataSet = [
   },
   {
     color: "blue",
-    data: [12, 13, 15, 25, 46, 40, 50, 60, 71, 68, 10, 20, 40, 80],
+    data: [12, 13, 15, 25, 46, 40, 50, 60, 71, 68, 10, 20, 40, 100],
   },
   {
     color: "yellow",
