@@ -1,50 +1,53 @@
 class AnaliticVideoPlayer {
-  constructor(dataSet) {
+  constructor(dataSet, padding) {
     //load videoPlayer (works like holder for all elements)
     this.videoPlayer = document.getElementById("video-player");
-    this.svgHolder = document.createElement("div");
     this.video = document.getElementById("main-video");
 
     //for editing width and moving curve
     this.coverL;
 
+    this.padding = padding;
+
     //for time handling
     this.interval;
-
-    //use pathGenerator.js
-    let pathHandler = new pathGenerator();
 
     //after loading metadata of video
     this.video.addEventListener("loadedmetadata", () => {
       this.vidWidth = this.video.videoWidth;
       this.vidHeight = this.video.videoHeight;
       this.vidDuration = this.video.duration * 1000;
-
-      let svg = this.prepareSVG(this.vidWidth, this.vidHeight);
-
-      let paths = [];
-      dataSet.map((dataRow) => {
-        let points = this.prepareData(
-          dataRow.data,
-          this.vidWidth,
-          this.vidHeight
-        );
-        let path = pathHandler.svgPath(points, dataRow.color);
-        svg.appendChild(path);
-      });
-      this.prepareCover(this.vidWidth, this.vidHeight, svg);
-      this.prepareListeners();
+      this.afterLoad(dataSet);
     });
+  }
+
+  afterLoad(dataSet) {
+    //use pathGenerator.js
+    let pathHandler = new pathGenerator();
+    let svg = this.prepareSVG(this.vidWidth, this.vidHeight);
+    dataSet.map((dataRow) => {
+      let points = this.prepareData(
+        dataRow.data,
+        this.vidWidth,
+        this.vidHeight
+      );
+      let path = pathHandler.svgPath(points, dataRow.color);
+      svg.appendChild(path);
+    });
+    this.prepareCover(this.vidWidth, this.vidHeight, svg);
+    this.prepareListeners();
   }
 
   prepareSVG(width, height) {
     let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute(
+      "viewBox",
+      `0 0 ${width - this.padding * 2} ${height - this.padding * 2}`
+    );
     svg.setAttribute("version", "1.1");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svg.setAttribute("width", width);
-    svg.setAttribute("height", height);
-
+    svg.setAttribute("width", width - this.padding * 2);
+    svg.setAttribute("height", height - this.padding * 2);
     return svg;
   }
 
@@ -52,8 +55,8 @@ class AnaliticVideoPlayer {
     let points = [];
     for (let i = 0; i < data.length; i++) {
       points[i] = [
-        i * (vidWidth / (data.length - 1)),
-        ((100 - data[i]) / 100) * vidHeight,
+        i * ((vidWidth - this.padding * 2) / (data.length - 1)),
+        ((100 - data[i]) / 100) * (vidHeight - this.padding * 2),
       ];
     }
     return points;
@@ -68,6 +71,7 @@ class AnaliticVideoPlayer {
 
     coverHolder.style.width = width + "px";
     coverHolder.style.height = height + "px";
+    coverHolder.style.padding = this.padding + "px";
     coverHolder.classList.add("coverHolder");
 
     coverL.style.width = "0px";
@@ -101,7 +105,8 @@ class AnaliticVideoPlayer {
   }
   updateCover(percents) {
     console.log(percents);
-    this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
+    this.coverL.style.width =
+      (this.vidWidth - this.padding * 2) * (percents * 1000) + "px";
   }
 }
 
@@ -119,8 +124,8 @@ let dataSet = [
     data: [12, 13, 15, 25, 46, 40, 50, 60, 71, 68, 10, 20, 40, 100],
   },
   {
-    color: "yellow",
-    data: [5, 6, 7, 8, 9, 10, 11, 15, 17, 19, 20, 21, 17, 13],
+    color: "black",
+    data: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   },
 ];
-let playerHandler = new AnaliticVideoPlayer(dataSet);
+let playerHandler = new AnaliticVideoPlayer(dataSet, 20);
