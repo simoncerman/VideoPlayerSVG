@@ -78,6 +78,12 @@ class pathGenerator {
           : `${acc} ${this.bezierCommand(point, i, a)}`,
       ""
     );
-    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="1"/>`;
+
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttributeNS(null, "d", d);
+    path.setAttributeNS(null, "stroke", color);
+    path.setAttributeNS(null, "stroke-width", 2);
+    path.setAttributeNS(null, "fill", "none");
+    return path;
   }
 }

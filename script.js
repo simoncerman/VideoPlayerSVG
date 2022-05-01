@@ -30,9 +30,8 @@ class AnaliticVideoPlayer {
           this.vidHeight
         );
         let path = pathHandler.svgPath(points, dataRow.color);
-        paths.push(path);
+        svg.appendChild(path);
       });
-      svg.innerHTML = [...paths];
       this.prepareCover(this.vidWidth, this.vidHeight, svg);
       this.prepareListeners();
     });
@@ -71,7 +70,7 @@ class AnaliticVideoPlayer {
     coverHolder.style.height = height + "px";
     coverHolder.classList.add("coverHolder");
 
-    coverL.style.width = "100px";
+    coverL.style.width = "0px";
     coverL.style.overflow = "hidden";
     if (svgTo != undefined) {
       coverL.appendChild(svgTo);
@@ -94,6 +93,9 @@ class AnaliticVideoPlayer {
     });
     this.video.addEventListener("pause", () => {
       clearInterval(this.interval);
+      this.updateCover(this.video.currentTime / this.vidDuration);
+    });
+    this.video.addEventListener("seeking", () => {
       this.updateCover(this.video.currentTime / this.vidDuration);
     });
   }
