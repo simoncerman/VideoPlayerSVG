@@ -1,5 +1,5 @@
 class AnaliticVideoPlayer {
-  constructor(dataSet, padding) {
+  constructor(dataSet, padding, lineStyles) {
     //load videoPlayer (works like holder for all elements)
     this.videoPlayer = document.getElementById("video-player");
     this.video = document.getElementById("main-video");
@@ -17,11 +17,11 @@ class AnaliticVideoPlayer {
       this.vidWidth = this.video.videoWidth;
       this.vidHeight = this.video.videoHeight;
       this.vidDuration = this.video.duration * 1000;
-      this.afterLoad(dataSet);
+      this.afterLoad(dataSet, lineStyles);
     });
   }
 
-  afterLoad(dataSet) {
+  afterLoad(dataSet, lineStyles) {
     //use pathGenerator.js
     let pathHandler = new pathGenerator();
 
@@ -35,6 +35,9 @@ class AnaliticVideoPlayer {
         this.vidHeight
       );
       let path = pathHandler.svgPath(points, dataRow.color);
+      lineStyles.svgAfter.map((e) => {
+        path.setAttributeNS(null, e.qualifiedName, e.value);
+      });
       svgAfter.appendChild(path);
     });
 
@@ -45,7 +48,11 @@ class AnaliticVideoPlayer {
         this.vidHeight
       );
       let path = pathHandler.svgPath(points, dataRow.color);
-      path.setAttributeNS(null, "stroke-dasharray", "4 5");
+
+      lineStyles.svgBefore.map((e) => {
+        path.setAttributeNS(null, e.qualifiedName, e.value);
+      });
+
       svgBefore.appendChild(path);
     });
     this.svgBefore = svgBefore;
@@ -120,7 +127,6 @@ class AnaliticVideoPlayer {
     });
   }
   updateCover(percents) {
-    console.log(percents);
     //change of left cover widht
     this.coverL.style.width =
       (this.vidWidth - this.padding * 2) * (percents * 1000) + "px";
@@ -152,4 +158,24 @@ let dataSet = [
     data: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   },
 ];
-let playerHandler = new AnaliticVideoPlayer(dataSet, 20);
+let lineStyle1 = {
+  svgAfter: [{ qualifiedName: "stroke-width", value: "2" }],
+  svgBefore: [{ qualifiedName: "stroke-width", value: "0" }],
+};
+let lineStyle2 = {
+  svgAfter: [{ qualifiedName: "stroke-width", value: "2" }],
+  svgBefore: [
+    { qualifiedName: "stroke-width", value: "1" },
+    { qualifiedName: "stroke-opacity", value: ".3" },
+  ],
+};
+let lineStyle3 = {
+  svgAfter: [{ qualifiedName: "stroke-width", value: "2" }],
+  svgBefore: [
+    { qualifiedName: "stroke", value: "gray" },
+    { qualifiedName: "stroke-opacity", value: ".75" },
+    { qualifiedName: "stroke-dasharray", value: "5 5" },
+  ],
+};
+
+let playerHandler = new AnaliticVideoPlayer(dataSet, 20, lineStyle3);
