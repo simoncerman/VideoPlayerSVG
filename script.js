@@ -24,7 +24,10 @@ class AnaliticVideoPlayer {
   afterLoad(dataSet) {
     //use pathGenerator.js
     let pathHandler = new pathGenerator();
-    let svg = this.prepareSVG(this.vidWidth, this.vidHeight);
+
+    let svgAfter = this.prepareSVG(this.vidWidth, this.vidHeight);
+    let svgBefore = this.prepareSVG(this.vidWidth, this.vidHeight);
+
     dataSet.map((dataRow) => {
       let points = this.prepareData(
         dataRow.data,
@@ -32,9 +35,21 @@ class AnaliticVideoPlayer {
         this.vidHeight
       );
       let path = pathHandler.svgPath(points, dataRow.color);
-      svg.appendChild(path);
+      svgAfter.appendChild(path);
     });
-    this.prepareCover(this.vidWidth, this.vidHeight, svg);
+
+    dataSet.map((dataRow) => {
+      let points = this.prepareData(
+        dataRow.data,
+        this.vidWidth,
+        this.vidHeight
+      );
+      let path = pathHandler.svgPath(points, dataRow.color);
+      path.setAttributeNS(null, "stroke-dasharray", "4 5");
+      svgBefore.appendChild(path);
+    });
+    this.svgBefore = svgBefore;
+    this.prepareCover(this.vidWidth, this.vidHeight, svgAfter, svgBefore);
     this.prepareListeners();
   }
 
@@ -76,12 +91,13 @@ class AnaliticVideoPlayer {
 
     coverL.style.width = "0px";
     coverL.style.overflow = "hidden";
+    coverL.style.float = "left";
     if (svgTo != undefined) {
       coverL.appendChild(svgTo);
     }
-
-    coverR.style.flexGrow = 1;
     coverR.style.pointerEvents = "none";
+    coverR.style.overflow = "hidden";
+
     if (svgFrom != undefined) {
       coverR.appendChild(svgFrom);
     }
@@ -105,8 +121,16 @@ class AnaliticVideoPlayer {
   }
   updateCover(percents) {
     console.log(percents);
+    //change of left cover widht
     this.coverL.style.width =
       (this.vidWidth - this.padding * 2) * (percents * 1000) + "px";
+    //move viewbox data
+    this.svgBefore.setAttribute(
+      "viewBox",
+      `${(this.vidWidth - this.padding * 2) * (percents * 1000)} 0 ${
+        this.vidWidth - this.padding * 2
+      } ${this.vidHeight - this.padding * 2}`
+    );
   }
 }
 
