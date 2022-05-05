@@ -1,0 +1,17 @@
+#video-player{
+    position: relative;
+}
+*{
+    box-sizing: border-box;
+}
+.coverHolder{
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    z-index: 999;
+    top: 0;
+    overflow: hidden;
+}
+svg{
+    pointer-events: none;
+} 

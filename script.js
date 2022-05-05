@@ -1,5 +1,5 @@
 class AnaliticVideoPlayer {
-  constructor(dataSet, padding, lineStyles) {
+  constructor(dataSet, padding, lineStyles, fill = false) {
     //load videoPlayer (works like holder for all elements)
     this.videoPlayer = document.getElementById("video-player");
     this.video = document.getElementById("main-video");
@@ -17,11 +17,11 @@ class AnaliticVideoPlayer {
       this.vidWidth = this.video.videoWidth;
       this.vidHeight = this.video.videoHeight;
       this.vidDuration = this.video.duration * 1000;
-      this.afterLoad(dataSet, lineStyles);
+      this.afterLoad(dataSet, lineStyles, fill);
     });
   }
 
-  afterLoad(dataSet, lineStyles) {
+  afterLoad(dataSet, lineStyles, fill) {
     //use pathGenerator.js
     let pathHandler = new pathGenerator();
 
@@ -34,7 +34,10 @@ class AnaliticVideoPlayer {
         this.vidWidth,
         this.vidHeight
       );
-      let path = pathHandler.svgPath(points, dataRow.color);
+      let path = pathHandler.svgPath(points, dataRow.color, fill);
+      if (fill == true) {
+        path = this.setupFill(path, this.vidWidth, this.vidHeight);
+      }
       lineStyles.svgAfter.map((e) => {
         path.setAttributeNS(null, e.qualifiedName, e.value);
       });
@@ -138,6 +141,14 @@ class AnaliticVideoPlayer {
       } ${this.vidHeight - this.padding * 2}`
     );
   }
+  setupFill(path, widht, height) {
+    let newD =
+      `M 0,${height}` +
+      path.getAttribute("d") +
+      `L ${widht},${height} L 0,${height}`;
+    path.setAttribute("d", newD);
+    return path;
+  }
 }
 
 let dataSet = [
@@ -178,4 +189,4 @@ let lineStyle3 = {
   ],
 };
 
-let playerHandler = new AnaliticVideoPlayer(dataSet, 20, lineStyle3);
+let playerHandler = new AnaliticVideoPlayer(dataSet, 30, lineStyle3, true);
