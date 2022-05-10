@@ -64,11 +64,11 @@ class pathGenerator {
   }
 
   /**
-   * Create the svg <path> element
+   * Create the svg d element of path
    * @param {*} points (array): points coordinates
    * @param {*} color string: color of stroke
    * @param {boolean} fill bool: True = fill | false = dont fill
-   * @returns (string): a Svg <path> element
+   * @returns {string}: svg d element of path
    */
   svgPath(points, color, fill = false) {
     // build the d attributes by looping over the points
@@ -81,17 +81,6 @@ class pathGenerator {
           : `${acc} ${this.bezierCommand(point, i, a)}`,
       ""
     );
-
-    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttributeNS(null, "d", d);
-    path.setAttributeNS(null, "stroke", color);
-    path.setAttributeNS(null, "stroke-width", 1);
-    if (fill) {
-      path.setAttributeNS(null, "fill", color);
-      path.setAttributeNS(null, "fill-opacity", "0.40");
-    } else {
-      path.setAttributeNS(null, "fill", "none");
-    }
-    return path;
+    return d;
   }
 }

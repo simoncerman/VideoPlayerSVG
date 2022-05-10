@@ -12,6 +12,10 @@ class AnaliticVideoPlayer {
     //for time handling
     this.interval;
 
+    //use pathGenerator.js
+    this.pathHandler = new pathGenerator();
+
+
     //after loading metadata of video
     this.video.addEventListener("loadedmetadata", () => {
       this.vidWidth = this.video.videoWidth;
@@ -22,41 +26,54 @@ class AnaliticVideoPlayer {
   }
 
   afterLoad(dataSet, lineStyles, fill) {
-    //use pathGenerator.js
-    let pathHandler = new pathGenerator();
 
     let svgAfter = this.prepareSVG(this.vidWidth, this.vidHeight);
     let svgBefore = this.prepareSVG(this.vidWidth, this.vidHeight);
 
+    let defs = document.createElement("defs");
+    let gradient = document.createElementNS("http://www.w3.org/2000/svg","linearGradient");
+    gradient.setAttribute("id","Gradient1");
+    let stop = document.createElementNS("http://www.w3.org/2000/svg","stop");
+    stop.setAttribute("offset","0%");
+    stop.setAttribute("stop-color","red");
+    let stop2 = document.createElementNS("http://www.w3.org/2000/svg","stop");
+    stop2.setAttribute("offset","100%");
+    stop2.setAttribute("stop-color","white");
+    stop2.setAttribute("stop-opacity","0");
+    gradient.appendChild(stop);
+    gradient.appendChild(stop2);
+    defs.appendChild(gradient);
+    console.log(defs);
+    svgAfter.appendChild(defs);
+    
+
+    //svg after
     dataSet.map((dataRow) => {
       let points = this.prepareData(
         dataRow.data,
         this.vidWidth,
         this.vidHeight
       );
-      let path = pathHandler.svgPath(points, dataRow.color, fill);
-      if (fill == true) {
-        path = this.setupFill(path, this.vidWidth, this.vidHeight);
-      }
-      lineStyles.svgAfter.map((e) => {
-        path.setAttributeNS(null, e.qualifiedName, e.value);
-      });
-      svgAfter.appendChild(path);
+
+      //generate full curves
+      let strokePath = this.generateStroke(points, dataRow.color);
+      let fillPath = this.generateFill(points,dataRow.color,this.vidHeight, this.vidWidth);
+
+      svgAfter.appendChild(strokePath);
+      svgAfter.appendChild(fillPath);
     });
 
+    //svg before
     dataSet.map((dataRow) => {
       let points = this.prepareData(
         dataRow.data,
         this.vidWidth,
         this.vidHeight
       );
-      let path = pathHandler.svgPath(points, dataRow.color);
+      let strokePath = this.generateStroke(points, dataRow.color);
+      let fillPath = this.generateFill(points,"grey",this.vidHeight, this.vidWidth);
 
-      lineStyles.svgBefore.map((e) => {
-        path.setAttributeNS(null, e.qualifiedName, e.value);
-      });
-
-      svgBefore.appendChild(path);
+      svgBefore.appendChild(strokePath);
     });
     this.svgBefore = svgBefore;
     this.prepareCover(this.vidWidth, this.vidHeight, svgAfter, svgBefore);
@@ -141,14 +158,28 @@ class AnaliticVideoPlayer {
       } ${this.vidHeight - this.padding * 2}`
     );
   }
-  setupFill(path, widht, height) {
-    let newD =
-      `M 0,${height}` +
-      path.getAttribute("d") +
-      `L ${widht},${height} L 0,${height}`;
-    path.setAttribute("d", newD);
+  generateStroke(points,color){
+    let d = this.pathHandler.svgPath(points, color)
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttributeNS(null, "d", d);
+    path.setAttributeNS(null, "stroke", color);
+    path.setAttributeNS(null, "stroke-width", 3);
+    path.setAttributeNS(null, "fill", "none");
     return path;
   }
+  generateFill(points,color, height, widht){
+    let d = this.pathHandler.svgPath(points, color,true)
+
+    let newD =
+      `M 0,${height}` +
+      d +
+      `L ${widht},${height} L 0,${height}`;
+    
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttributeNS(null, "d", newD);
+    path.setAttributeNS(null, "stroke", "none");
+    path.setAttributeNS(null, "fill", "url(#Gradient1)");
+    return path;  }
 }
 
 let dataSet = [
