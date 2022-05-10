@@ -4,14 +4,12 @@ class AnaliticVideoPlayer {
    * @param {float} padding
    * @param {JSON} lineStyles
    * @param {boolean} fill
-   * @param {boolean} percentWrite
    */
   constructor(
     dataSet,
     padding,
     lineStyles,
     fill = false,
-    percentWrite = false
   ) {
     //load videoPlayer (works like holder for all elements)
     this.videoPlayer = document.getElementById("video-player");
@@ -28,72 +26,79 @@ class AnaliticVideoPlayer {
     //use pathGenerator.js
     this.pathHandler = new pathGenerator();
 
-
     //after loading metadata of video
     this.video.addEventListener("loadedmetadata", () => {
       this.vidWidth = this.video.videoWidth;
       this.vidHeight = this.video.videoHeight;
       this.vidDuration = this.video.duration * 1000;
-      this.afterLoad(dataSet, lineStyles, fill, percentWrite);
+      this.afterLoad(dataSet, lineStyles, fill);
     });
   }
 
-  afterLoad(dataSet, lineStyles, fill, percentWrite) {
-
+  afterLoad(dataSet, lineStyles, fill) {
     let svgAfter = this.prepareSVG(this.vidWidth, this.vidHeight);
     let svgBefore = this.prepareSVG(this.vidWidth, this.vidHeight);
 
-
-    let defs = document.createElement("defs");
-    let gradient = document.createElementNS("http://www.w3.org/2000/svg","linearGradient");
-    gradient.setAttribute("id","Gradient1");
-    let stop = document.createElementNS("http://www.w3.org/2000/svg","stop");
-    stop.setAttribute("offset","0%");
-    stop.setAttribute("stop-color","red");
-    let stop2 = document.createElementNS("http://www.w3.org/2000/svg","stop");
-    stop2.setAttribute("offset","100%");
-    stop2.setAttribute("stop-color","white");
-    stop2.setAttribute("stop-opacity","0");
-    gradient.appendChild(stop);
-    gradient.appendChild(stop2);
-    defs.appendChild(gradient);
-    console.log(defs);
+    let defs = this.prepareGradients(dataSet);
     svgAfter.appendChild(defs);
+    let defs2 = this.prepareGradients(dataSet,true);
+    svgBefore.appendChild(defs2);
 
-    //svg after
-    dataSet.map((dataRow) => {
-      let points = this.prepareData(
-        dataRow.data,
-        this.vidWidth,
-        this.vidHeight
-      );
-
-      //generate full curves
-      let strokePath = this.generateStroke(points, dataRow.color);
-      let fillPath = this.generateFill(points,dataRow.color,this.vidHeight, this.vidWidth);
-
-      svgAfter.appendChild(strokePath);
-      svgAfter.appendChild(fillPath);
-    });
-
-    //svg before
-    dataSet.map((dataRow) => {
-      let points = this.prepareData(
-        dataRow.data,
-        this.vidWidth,
-        this.vidHeight
-      );
-      let strokePath = this.generateStroke(points, dataRow.color);
-      let fillPath = this.generateFill(points,"grey",this.vidHeight, this.vidWidth);
-
-      svgBefore.appendChild(strokePath);
-    });
+    [svgAfter, svgBefore].forEach(svg =>{
+      dataSet.map((dataRow) => {
+        let points = this.prepareData(
+          dataRow.data,
+          this.vidWidth,
+          this.vidHeight
+        );
+        let strokePath = this.generateStroke(points, dataRow.color);
+        let fillPath = this.generateFill(points,dataRow.color,this.vidHeight, this.vidWidth,dataSet.indexOf (dataRow));
+        if(svg != svgBefore){
+          svg.appendChild(strokePath);
+          svg.appendChild(fillPath);
+        }
+      });
+    })
     this.svgBefore = svgBefore;
     this.prepareCover(this.vidWidth, this.vidHeight, svgAfter, svgBefore);
-    if (percentWrite) {
-      this.preparePercentWrite(dataSet);
-    }
     this.prepareListeners();
+  }
+
+  /**
+   * Return granide styles
+   * @param {JSON} dataSet
+   * @param {boolean} gray
+   * @returns <defs>
+   */
+   prepareGradients(dataSet, gray=false){
+    let defs = document.createElement("defs");
+    for (let y = 0; y < dataSet.length; y++) {
+      const dataRow = dataSet[y];
+      let gradient = document.createElementNS("http://www.w3.org/2000/svg","linearGradient");
+      gradient.setAttributeNS(null,"id","gradient"+y);
+      gradient.setAttributeNS(null,"x1", "0%");
+      gradient.setAttributeNS(null,"y1", "0%");
+      gradient.setAttributeNS(null,"x2", "0%");
+      gradient.setAttributeNS(null,"y2", "100%");
+
+      let stop1 = document.createElementNS("http://www.w3.org/2000/svg","stop");
+      stop1.setAttributeNS(null,"offset","0%");
+      if(gray){
+        stop1.setAttributeNS(null,"stop-color", "gray");
+      }else{
+        stop1.setAttributeNS(null,"stop-color", dataRow.color);
+      }
+  
+      let stop2 = document.createElementNS("http://www.w3.org/2000/svg","stop");
+      stop2.setAttributeNS(null,"offset","100%");
+      stop2.setAttributeNS(null,"stop-color","#fff");
+
+      gradient.appendChild(stop1);
+      gradient.appendChild(stop2);
+
+      defs.appendChild(gradient);
+    }
+    return defs;
   }
 
   prepareSVG(width, height) {
@@ -135,18 +140,20 @@ class AnaliticVideoPlayer {
     coverL.style.width = "0px";
     coverL.style.overflow = "hidden";
     coverL.style.float = "left";
-    if (svgTo != undefined) {
-      coverL.appendChild(svgTo);
-    }
+    coverL.appendChild(svgTo);
     coverR.style.pointerEvents = "none";
     coverR.style.overflow = "hidden";
 
-    if (svgFrom != undefined) {
-      coverR.appendChild(svgFrom);
-    }
+    coverR.appendChild(svgFrom);
 
     this.coverL = coverL;
+    this.coverR = coverR;
     this.videoPlayer.appendChild(coverHolder);
+    
+    //fix dont remove
+    this.coverL.innerHTML = this.coverL.innerHTML+"";
+    this.coverR.innerHTML = this.coverR.innerHTML+"";
+    
   }
   prepareListeners() {
     this.video.addEventListener("play", () => {
@@ -163,24 +170,6 @@ class AnaliticVideoPlayer {
     });
   }
 
-  /**
-   * Prepare percent showing div
-   * @param {JSON} dataSet
-   */
-  preparePercentWrite(dataSet) {
-    let percentsHolder = document.createElement("div");
-    percentsHolder.classList.add("percentsHolder");
-    percentsHolder.style.width = this.vidWidth + "px";
-    for (let i = 0; i < dataSet.length; i++) {
-      let percentData = document.createElement("div");
-      percentData.innerHTML = dataSet[i].data[0];
-      percentData.style.backgroundColor = dataSet[i].color;
-      percentData.style.width = 100 / dataSet.length + "%";
-      percentsHolder.appendChild(percentData);
-    }
-    this.videoPlayer.appendChild(percentsHolder);
-  }
-
   updateCover(percents) {
     //change of left cover widht
     this.coverL.style.width =
@@ -193,6 +182,7 @@ class AnaliticVideoPlayer {
       } ${this.vidHeight - this.padding * 2}`
     );
   }
+
   generateStroke(points,color){
     let d = this.pathHandler.svgPath(points, color)
     let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -202,9 +192,9 @@ class AnaliticVideoPlayer {
     path.setAttributeNS(null, "fill", "none");
     return path;
   }
-  generateFill(points,color, height, widht){
-    let d = this.pathHandler.svgPath(points, color,true)
 
+  generateFill(points,color, height, widht, gradientID){
+    let d = this.pathHandler.svgPath(points, color,true)
     let newD =
       `M 0,${height}` +
       d +
@@ -213,8 +203,9 @@ class AnaliticVideoPlayer {
     let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttributeNS(null, "d", newD);
     path.setAttributeNS(null, "stroke", "none");
-    path.setAttributeNS(null, "fill", "url(#Gradient1)");
-    return path;  }
+    path.setAttributeNS(null, "fill", `url(#gradient${gradientID})`);
+    return path;  
+  }
 }
 
 let dataSet = [
@@ -260,5 +251,4 @@ let playerHandler = new AnaliticVideoPlayer(
   30,
   lineStyle3,
   true,
-  true
 );
