@@ -1,5 +1,18 @@
 class AnaliticVideoPlayer {
-  constructor(dataSet, padding, lineStyles, fill = false) {
+  /**
+   * @param {JSON} dataSet
+   * @param {float} padding
+   * @param {JSON} lineStyles
+   * @param {boolean} fill
+   * @param {boolean} percentWrite
+   */
+  constructor(
+    dataSet,
+    padding,
+    lineStyles,
+    fill = false,
+    percentWrite = false
+  ) {
     //load videoPlayer (works like holder for all elements)
     this.videoPlayer = document.getElementById("video-player");
     this.video = document.getElementById("main-video");
@@ -17,17 +30,18 @@ class AnaliticVideoPlayer {
       this.vidWidth = this.video.videoWidth;
       this.vidHeight = this.video.videoHeight;
       this.vidDuration = this.video.duration * 1000;
-      this.afterLoad(dataSet, lineStyles, fill);
+      this.afterLoad(dataSet, lineStyles, fill, percentWrite);
     });
   }
 
-  afterLoad(dataSet, lineStyles, fill) {
+  afterLoad(dataSet, lineStyles, fill, percentWrite) {
     //use pathGenerator.js
     let pathHandler = new pathGenerator();
 
     let svgAfter = this.prepareSVG(this.vidWidth, this.vidHeight);
     let svgBefore = this.prepareSVG(this.vidWidth, this.vidHeight);
 
+    //svg after
     dataSet.map((dataRow) => {
       let points = this.prepareData(
         dataRow.data,
@@ -44,6 +58,7 @@ class AnaliticVideoPlayer {
       svgAfter.appendChild(path);
     });
 
+    //svg before
     dataSet.map((dataRow) => {
       let points = this.prepareData(
         dataRow.data,
@@ -60,6 +75,9 @@ class AnaliticVideoPlayer {
     });
     this.svgBefore = svgBefore;
     this.prepareCover(this.vidWidth, this.vidHeight, svgAfter, svgBefore);
+    if (percentWrite) {
+      this.preparePercentWrite(dataSet);
+    }
     this.prepareListeners();
   }
 
@@ -129,6 +147,25 @@ class AnaliticVideoPlayer {
       this.updateCover(this.video.currentTime / this.vidDuration);
     });
   }
+
+  /**
+   * Prepare percent showing div
+   * @param {JSON} dataSet
+   */
+  preparePercentWrite(dataSet) {
+    let percentsHolder = document.createElement("div");
+    percentsHolder.classList.add("percentsHolder");
+    percentsHolder.style.width = this.vidWidth + "px";
+    for (let i = 0; i < dataSet.length; i++) {
+      let percentData = document.createElement("div");
+      percentData.innerHTML = dataSet[i].data[0];
+      percentData.style.backgroundColor = dataSet[i].color;
+      percentData.style.width = 100 / dataSet.length + "%";
+      percentsHolder.appendChild(percentData);
+    }
+    this.videoPlayer.appendChild(percentsHolder);
+  }
+
   updateCover(percents) {
     //change of left cover widht
     this.coverL.style.width =
@@ -189,4 +226,10 @@ let lineStyle3 = {
   ],
 };
 
-let playerHandler = new AnaliticVideoPlayer(dataSet, 30, lineStyle3, true);
+let playerHandler = new AnaliticVideoPlayer(
+  dataSet,
+  30,
+  lineStyle3,
+  true,
+  true
+);
