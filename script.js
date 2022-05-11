@@ -91,7 +91,8 @@ class AnaliticVideoPlayer {
   
       let stop2 = document.createElementNS("http://www.w3.org/2000/svg","stop");
       stop2.setAttributeNS(null,"offset","100%");
-      stop2.setAttributeNS(null,"stop-color","#fff");
+      stop2.setAttributeNS(null,"stop-opacity","0%")
+      stop2.setAttributeNS(null,"stop-color",dataRow.color);
 
       gradient.appendChild(stop1);
       gradient.appendChild(stop2);
