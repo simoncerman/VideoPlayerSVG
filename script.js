@@ -19,7 +19,7 @@ class AnaliticVideoPlayer {
     //after loading metadata of video
     this.video.addEventListener("loadedmetadata", () => {
       this.vidWidth = this.video.videoWidth;
-      this.vidHeight = this.video.videoHeight/2;
+      this.vidHeight = this.video.videoHeight / 2;
       this.vidDuration = this.video.duration * 1000;
       this.afterLoad(dataSet);
     });
@@ -28,7 +28,7 @@ class AnaliticVideoPlayer {
   afterLoad(dataSet) {
     let svgAfter = this.prepareSVG(this.vidWidth, this.vidHeight);
     let svgBefore = this.prepareSVG(this.vidWidth, this.vidHeight);
-    svgBefore.id= "svgBefore";
+    svgBefore.id = "svgBefore";
 
     let defs = this.prepareGradients(dataSet, false, 0);
     svgAfter.appendChild(defs);
@@ -37,6 +37,8 @@ class AnaliticVideoPlayer {
     svgBefore.appendChild(defs2);
 
     [svgAfter, svgBefore].forEach((svg) => {
+      let strokes = [];
+      let filled = [];
       dataSet.map((dataRow) => {
         let points = this.prepareData(
           dataRow.data,
@@ -44,7 +46,7 @@ class AnaliticVideoPlayer {
           this.vidHeight
         );
         let strokePath = this.generateStroke(points, dataRow.color);
-        if(svg==svgBefore){
+        if (svg == svgBefore) {
           strokePath.setAttributeNS(null, "stroke", "gray");
         }
         let gradientID = dataSet.indexOf(dataRow);
@@ -58,8 +60,12 @@ class AnaliticVideoPlayer {
           this.vidWidth,
           gradientID
         );
-        svg.appendChild(strokePath);
-        svg.appendChild(fillPath);
+        strokes.push(strokePath);
+        filled.push(fillPath);
+      });
+      //set strokes and filled areas into svg in correct order => stroke curves must be on top
+      [...filled,...strokes].forEach((element) => {
+        svg.append(element);
       });
     });
     this.svgBefore = svgBefore;
@@ -100,7 +106,6 @@ class AnaliticVideoPlayer {
       }
       stop1.setAttributeNS(null, "stop-opacity", "80%");
 
-
       let stop2 = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "stop"
@@ -121,12 +126,15 @@ class AnaliticVideoPlayer {
     return defs;
   }
 
+  /**
+   * Create svg element with specific w|h
+   * @param {*} width 
+   * @param {*} height 
+   * @returns <svg>
+   */
   prepareSVG(width, height) {
     let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute(
-      "viewBox",
-      `0 0 ${width} ${height}`
-    );
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("version", "1.1");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     svg.setAttribute("width", width);
@@ -134,17 +142,32 @@ class AnaliticVideoPlayer {
     return svg;
   }
 
+  /**
+   * Recalculate data to points
+   * @param {*} data 
+   * @param {*} vidWidth 
+   * @param {*} vidHeight 
+   * @returns 
+   */
   prepareData(data, vidWidth, vidHeight) {
     let points = [];
     for (let i = 0; i < data.length; i++) {
       points[i] = [
-        i * ((vidWidth) / (data.length - 1)),
-        ((100 - data[i]) / 100) * (vidHeight),
+        i * (vidWidth / (data.length - 1)),
+        ((100 - data[i]) / 100) * vidHeight,
       ];
     }
     return points;
   }
 
+  /**
+   * Prepare cover wich contains left and right 
+   * moving svgs and other important elements
+   * @param {*} width 
+   * @param {*} height 
+   * @param {*} svgTo 
+   * @param {*} svgFrom 
+   */
   prepareCover(width, height, svgTo, svgFrom) {
     let coverHolder = document.createElement("div");
     let coverL = document.createElement("div");
@@ -170,10 +193,15 @@ class AnaliticVideoPlayer {
     this.coverR = coverR;
     this.videoPlayer.appendChild(coverHolder);
 
-    //fix dont remove
+    //fix dont remove important
     this.coverL.innerHTML = this.coverL.innerHTML + "";
     this.coverR.innerHTML = this.coverR.innerHTML + "";
   }
+
+
+  /**
+   * 
+   */
   prepareListeners() {
     this.video.addEventListener("play", () => {
       this.interval = setInterval(() => {
@@ -191,15 +219,16 @@ class AnaliticVideoPlayer {
 
   updateCover(percents) {
     //change of left cover widht
-    this.coverL.style.width =
-      (this.vidWidth) * (percents * 1000) + "px";
+    this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
     //move viewbox data
-    document.getElementById("svgBefore").setAttribute(
-      "viewBox",
-      `${(this.vidWidth) * (percents * 1000)} 0 ${
-        this.vidWidth
-      } ${this.vidHeight}`
-    );
+    document
+      .getElementById("svgBefore")
+      .setAttribute(
+        "viewBox",
+        `${this.vidWidth * (percents * 1000)} 0 ${this.vidWidth} ${
+          this.vidHeight
+        }`
+      );
   }
 
   generateStroke(points, color) {
@@ -227,7 +256,7 @@ class AnaliticVideoPlayer {
 let dataSet = [
   {
     color: "#1BE7FF",
-    data: [70, 50, 76, 90, 68, 50, 59, 60,49, 40, 30, 31, 28, 10],
+    data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
   },
   {
     color: "#6EEB83",
