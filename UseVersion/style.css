@@ -6,12 +6,25 @@
 }
 .coverHolder{
     position: absolute;
-    background-color: rgba(255, 255, 255, 0.5);
     pointer-events: none;
-    z-index: 999;
-    top: 0;
+    z-index: 998;
+    bottom:  0;
     overflow: hidden;
 }
 svg{
     pointer-events: none;
-} 
+}
+.percentsHolder{
+    position: absolute;
+    bottom: 0;
+    z-index: 999;
+    display: flex;
+    justify-content: space-evenly;
+    font-size: 25px;
+    pointer-events: none;
+    padding-left: 5rem;
+    padding-right: 5rem;
+}
+.percentsHolder>*{
+    text-align: center;
+}

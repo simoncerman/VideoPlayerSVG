@@ -5,40 +5,27 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <a href="/first.html">První</a>
-    <a href="/secound.html">Druhý</a>
-    <a href="/third.html">Třetí</a>
+    <div class="video-player" id="video-player">
+      <video id="main-video" src="video.mp4" controls></video>
+    </div>
   </body>
-  <style>
-    a {
-      box-sizing: border-box;
-      background-color: transparent;
-      border: 2px solid #e74c3c;
-      border-radius: 0.6em;
-      color: #e74c3c;
-      cursor: pointer;
-      display: flex;
-      -webkit-align-self: center;
-      -ms-flex-item-align: center;
-      align-self: center;
-      font-size: 1rem;
-      font-weight: 400;
-      line-height: 1;
-      margin: 20px;
-      padding: 1.2em 2.8em;
-      text-decoration: none;
-      text-align: center;
-      text-transform: uppercase;
-      font-family: "Montserrat", sans-serif;
-      font-weight: 700;
-      width: 10rem;
-      transition-duration: 0.5s;
-    }
-    a:hover {
-      background-color: #e74c3c;
-      color: white;
-    }
-  </style>
+  <script src="pathGenerator.js"></script>
+  <script src="script.js"></script>
+  <script>
+    let dataSet = [
+      {
+        color: "#1BE7FF",
+        data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
+      },
+      {
+        color: "#6EEB83",
+        data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
+      },
+    ];
+
+    let playerHandler = new AnaliticVideoPlayer(dataSet);
+  </script>
 </html>
