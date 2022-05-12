@@ -70,6 +70,10 @@ class AnaliticVideoPlayer {
     });
     this.svgBefore = svgBefore;
     this.prepareCover(this.vidWidth, this.vidHeight, svgAfter, svgBefore);
+    
+    //creates dots and moving line on top
+    this.prepareOverlay();
+
     this.prepareListeners();
   }
 
@@ -168,7 +172,7 @@ class AnaliticVideoPlayer {
    * @param {*} svgTo 
    * @param {*} svgFrom 
    */
-  prepareCover(width, height, svgTo, svgFrom) {
+  prepareCover(width, height, svgAfter, svgBefore) {
     let coverHolder = document.createElement("div");
     let coverL = document.createElement("div");
     let coverR = document.createElement("div");
@@ -183,11 +187,11 @@ class AnaliticVideoPlayer {
     coverL.style.width = "0px";
     coverL.style.overflow = "hidden";
     coverL.style.float = "left";
-    coverL.appendChild(svgTo);
+    coverL.appendChild(svgAfter);
     coverR.style.pointerEvents = "none";
     coverR.style.overflow = "hidden";
 
-    coverR.appendChild(svgFrom);
+    coverR.appendChild(svgBefore);
 
     this.coverL = coverL;
     this.coverR = coverR;
@@ -198,9 +202,15 @@ class AnaliticVideoPlayer {
     this.coverR.innerHTML = this.coverR.innerHTML + "";
   }
 
+  prepareOverlay(){
+    let overlayer = document.createElement("div");
+    this.videoPlayer.appendChild(coverHolder);
+
+  }
+
 
   /**
-   * 
+   * Will prepare all listeners to video
    */
   prepareListeners() {
     this.video.addEventListener("play", () => {
@@ -217,6 +227,10 @@ class AnaliticVideoPlayer {
     });
   }
 
+  /**
+   * Updating cover on percent
+   * @param {*} percents 
+   */
   updateCover(percents) {
     //change of left cover widht
     this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
@@ -231,6 +245,12 @@ class AnaliticVideoPlayer {
       );
   }
 
+  /**
+   * Responsible for generating stroke curve
+   * @param {*} points 
+   * @param {*} color 
+   * @returns 
+   */
   generateStroke(points, color) {
     let d = this.pathHandler.svgPath(points, color);
     let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -241,6 +261,15 @@ class AnaliticVideoPlayer {
     return path;
   }
 
+  /**
+   * Responsible for generating filled areas
+   * @param {*} points 
+   * @param {*} color 
+   * @param {*} height 
+   * @param {*} widht 
+   * @param {*} gradientID 
+   * @returns 
+   */
   generateFill(points, color, height, widht, gradientID) {
     let d = this.pathHandler.svgPath(points, color, true);
     let newD = `M 0,${height}` + d + `L ${widht},${height} L 0,${height}`;
