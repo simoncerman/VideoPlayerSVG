@@ -1,18 +1,14 @@
 class AnaliticVideoPlayer {
   /**
    * @param {JSON} dataSet
-   * @param {float} padding
-   * @param {JSON} lineStyles
    */
-  constructor(dataSet, padding) {
+  constructor(dataSet) {
     //load videoPlayer (works like holder for all elements)
     this.videoPlayer = document.getElementById("video-player");
     this.video = document.getElementById("main-video");
 
     //for editing width and moving curve
     this.coverL;
-
-    this.padding = padding;
 
     //for time handling
     this.interval;
@@ -23,7 +19,7 @@ class AnaliticVideoPlayer {
     //after loading metadata of video
     this.video.addEventListener("loadedmetadata", () => {
       this.vidWidth = this.video.videoWidth;
-      this.vidHeight = this.video.videoHeight;
+      this.vidHeight = this.video.videoHeight/2;
       this.vidDuration = this.video.duration * 1000;
       this.afterLoad(dataSet);
     });
@@ -52,7 +48,6 @@ class AnaliticVideoPlayer {
         if (svg == svgBefore) {
           gradientID += dataSet.length;
         }
-        console.log(gradientID);
         let fillPath = this.generateFill(
           points,
           dataRow.color,
@@ -127,12 +122,12 @@ class AnaliticVideoPlayer {
     let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute(
       "viewBox",
-      `0 0 ${width - this.padding * 2} ${height - this.padding * 2}`
+      `0 0 ${width} ${height}`
     );
     svg.setAttribute("version", "1.1");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svg.setAttribute("width", width - this.padding * 2);
-    svg.setAttribute("height", height - this.padding * 2);
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
     return svg;
   }
 
@@ -140,8 +135,8 @@ class AnaliticVideoPlayer {
     let points = [];
     for (let i = 0; i < data.length; i++) {
       points[i] = [
-        i * ((vidWidth - this.padding * 2) / (data.length - 1)),
-        ((100 - data[i]) / 100) * (vidHeight - this.padding * 2),
+        i * ((vidWidth) / (data.length - 1)),
+        ((100 - data[i]) / 100) * (vidHeight),
       ];
     }
     return points;
@@ -194,15 +189,14 @@ class AnaliticVideoPlayer {
   updateCover(percents) {
     //change of left cover widht
     this.coverL.style.width =
-      (this.vidWidth - this.padding * 2) * (percents * 1000) + "px";
+      (this.vidWidth) * (percents * 1000) + "px";
     //move viewbox data
     document.getElementById("svgBefore").setAttribute(
       "viewBox",
-      `${(this.vidWidth - this.padding * 2) * (percents * 1000)} 0 ${
-        this.vidWidth - this.padding * 2
-      } ${this.vidHeight - this.padding * 2}`
+      `${(this.vidWidth) * (percents * 1000)} 0 ${
+        this.vidWidth
+      } ${this.vidHeight}`
     );
-    console.log(this.svgBefore)
   }
 
   generateStroke(points, color) {
@@ -237,24 +231,5 @@ let dataSet = [
     data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
   },
 ];
-let lineStyle1 = {
-  svgAfter: [{ qualifiedName: "stroke-width", value: "2" }],
-  svgBefore: [{ qualifiedName: "stroke-width", value: "0" }],
-};
-let lineStyle2 = {
-  svgAfter: [{ qualifiedName: "stroke-width", value: "2" }],
-  svgBefore: [
-    { qualifiedName: "stroke-width", value: "1" },
-    { qualifiedName: "stroke-opacity", value: ".3" },
-  ],
-};
-let lineStyle3 = {
-  svgAfter: [{ qualifiedName: "stroke-width", value: "2" }],
-  svgBefore: [
-    { qualifiedName: "stroke", value: "gray" },
-    { qualifiedName: "stroke-opacity", value: ".75" },
-    { qualifiedName: "stroke-dasharray", value: "5 5" },
-  ],
-};
 
-let playerHandler = new AnaliticVideoPlayer(dataSet, 30, lineStyle3, true);
+let playerHandler = new AnaliticVideoPlayer(dataSet);
