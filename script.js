@@ -44,6 +44,9 @@ class AnaliticVideoPlayer {
           this.vidHeight
         );
         let strokePath = this.generateStroke(points, dataRow.color);
+        if(svg==svgBefore){
+          strokePath.setAttributeNS(null, "stroke", "gray");
+        }
         let gradientID = dataSet.indexOf(dataRow);
         if (svg == svgBefore) {
           gradientID += dataSet.length;
