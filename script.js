@@ -9,12 +9,18 @@ class AnaliticVideoPlayer {
 
     //for editing width and moving curve
     this.coverL;
+    this.coverHolder;
 
     //for time handling
     this.interval;
 
+    this.strokePaths = [];
+
     //use pathGenerator.js
     this.pathHandler = new pathGenerator();
+
+    //dots moving in time
+    this.dataDots = [];
 
     //after loading metadata of video
     this.video.addEventListener("loadedmetadata", () => {
@@ -48,6 +54,7 @@ class AnaliticVideoPlayer {
         let strokePath = this.generateStroke(points, dataRow.color);
         if (svg == svgBefore) {
           strokePath.setAttributeNS(null, "stroke", "gray");
+          this.strokePaths.push(strokePath);
         }
         let gradientID = dataSet.indexOf(dataRow);
         if (svg == svgBefore) {
@@ -72,7 +79,7 @@ class AnaliticVideoPlayer {
     this.prepareCover(this.vidWidth, this.vidHeight, svgAfter, svgBefore);
     
     //creates dots and moving line on top
-    this.prepareOverlay();
+    this.prepareOverlay(dataSet);
 
     this.prepareListeners();
   }
@@ -196,19 +203,83 @@ class AnaliticVideoPlayer {
     this.coverL = coverL;
     this.coverR = coverR;
     this.videoPlayer.appendChild(coverHolder);
+    this.coverHolder = coverHolder;
 
     //fix dont remove important
     this.coverL.innerHTML = this.coverL.innerHTML + "";
     this.coverR.innerHTML = this.coverR.innerHTML + "";
   }
 
-  prepareOverlay(){
-    let overlayer = document.createElement("div");
-    this.videoPlayer.appendChild(coverHolder);
-
+  prepareOverlay(dataSet){
+    let dotHolder = this.prepareSVG(this.vidWidth, this.vidHeight);
+    dotHolder.style.width = "100%";
+    dotHolder.style.height = "100%";
+    dotHolder.style.position = "absolute";
+    dotHolder.style.top = "0px";
+    let dots = dataSet.map((dataRow)=>{
+      let dot = this.generateDot(dataRow.color,0,((100-dataRow.data[0])/100)*this.vidHeight);
+      dotHolder.appendChild(dot);
+      return dot;
+    })
+    this.coverHolder.appendChild(dotHolder);
   }
 
+  generateDot(color, posX, posY){
+    let circleGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
+    let outerCircle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    outerCircle.setAttributeNS(null,"r","12");
+    outerCircle.setAttributeNS(null, "fill", "white");
+    circleGroup.appendChild(outerCircle);
 
+    let innerCircle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    innerCircle.setAttributeNS(null,"r","8");
+    innerCircle.setAttributeNS(null, "fill", color);
+    circleGroup.appendChild(innerCircle);
+
+    circleGroup.setAttribute("transform", `translate(${posX},${posY})`);
+    this.dataDots.push(circleGroup);
+    return circleGroup;
+  }
+
+  findY(path, x) {
+    var pathLength = path.getTotalLength()
+    var start = 0
+    var end = pathLength
+    var target = (start + end) / 2
+  
+    // Ensure that x is within the range of the path
+    x = Math.max(x, path.getPointAtLength(0).x)
+    x = Math.min(x, path.getPointAtLength(pathLength).x)
+  
+    // Walk along the path using binary search 
+    // to locate the point with the supplied x value
+    while (target >= start && target <= pathLength) {
+      var pos = path.getPointAtLength(target)
+  
+      // use a threshold instead of strict equality 
+      // to handle javascript floating point precision
+      if (Math.abs(pos.x - x) < 0.001) {
+        return pos.y
+      } else if (pos.x > x) {
+        end = target
+      } else {
+        start = target
+      }
+      target = (start + end) / 2
+    }
+  }
+
+  updateDots(percents){
+    for (let i = 0; i < this.strokePaths.length; i++) {
+      let path = this.strokePaths[i];
+      let length = path.getTotalLength();
+      let pos = {x:this.vidWidth*1000*percents,y:this.findY(path,this.vidWidth*1000*percents)};
+      this.dataDots[i].setAttribute("transform", `translate(${pos.x},${pos.y})`)
+    }
+    
+
+
+  }
   /**
    * Will prepare all listeners to video
    */
@@ -243,6 +314,8 @@ class AnaliticVideoPlayer {
           this.vidHeight
         }`
       );
+    //updating dots
+    this.updateDots(percents);
   }
 
   /**
