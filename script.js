@@ -16,6 +16,7 @@ class AnaliticVideoPlayer {
 
     this.strokePaths = [];
 
+
     //use pathGenerator.js
     this.pathHandler = new pathGenerator();
 
@@ -217,19 +218,34 @@ class AnaliticVideoPlayer {
   prepareOverlay(dataSet){
     let dotHolder = this.prepareSVG(this.vidWidth, this.vidHeight);
     dotHolder.classList.add("dotHolder");
+    let dotMax = this.vidHeight;
     //dots
     let dots = dataSet.map((dataRow)=>{
+      if(((100-dataRow.data[0])/100)*this.vidHeight<dotMax){
+        dotMax = ((100-dataRow.data[0])/100)*this.vidHeight
+      }
       let dot = this.generateDot(dataRow.color,0,((100-dataRow.data[0])/100)*this.vidHeight);
-      dotHolder.appendChild(dot);
       return dot;
     })
     //line
-    let line = generateVerticalLine();
+    this.line = this.generateVerticalLine(dotMax);
+    dotHolder.append(this.line);
+    dots.map((dot)=>{
+      dotHolder.appendChild(dot);
+    })
     this.coverHolder.appendChild(dotHolder);
   }
 
-  generateVerticalLine(){
-    
+  generateVerticalLine(startingHeigth){
+    let line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1","0");
+    line.setAttribute("y1",this.vidHeight);
+    line.setAttribute("x2","0");
+    line.setAttribute("y2",startingHeigth);
+    line.setAttribute("stroke","white");
+    line.setAttribute("stroke-width","2")
+    line.setAttribute("stroke-dasharray", "3")
+    return line;
   }
 
   /**
@@ -243,12 +259,12 @@ class AnaliticVideoPlayer {
     let circleGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
 
     let outerCircle = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    outerCircle.setAttribute("r","12");
+    outerCircle.setAttribute("r","9");
     outerCircle.setAttribute("fill", "white");
     circleGroup.appendChild(outerCircle);
 
     let innerCircle = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    innerCircle.setAttribute("r","8");
+    innerCircle.setAttribute("r","6");
     innerCircle.setAttribute("fill", color);
     circleGroup.appendChild(innerCircle);
 
@@ -292,16 +308,23 @@ class AnaliticVideoPlayer {
   }
 
   updateDots(percents){
+    let maxDotPos = this.vidHeight;
     for (let i = 0; i < this.strokePaths.length; i++) {
       let path = this.strokePaths[i];
-      let length = path.getTotalLength();
       let pos = {x:this.vidWidth*1000*percents,y:this.findY(path,this.vidWidth*1000*percents)};
+      if(pos.y<maxDotPos){
+        maxDotPos = parseFloat(pos.y);
+      }
       this.dataDots[i].setAttribute("transform", `translate(${pos.x},${pos.y})`)
     }
+    this.updateVerticalLine(percents, maxDotPos);
   }
 
-  updateVerticalLine(){
-
+  updateVerticalLine(percents, maxDotPos){
+    this.line.setAttribute("x1",this.vidWidth*percents*1000);
+    this.line.setAttribute("x2",this.vidWidth*percents*1000);
+    this.line.setAttribute("y1",this.vidHeight);
+    this.line.setAttribute("y2", maxDotPos);
   }
   /**
    * Will prepare all listeners to video
@@ -339,8 +362,6 @@ class AnaliticVideoPlayer {
       );
     //updating dots
     this.updateDots(percents);
-    //update vertical line
-    this.updateVerticalLine(percents);
   }
 
   /**
@@ -354,7 +375,7 @@ class AnaliticVideoPlayer {
     let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttributeNS(null, "d", d);
     path.setAttributeNS(null, "stroke", color);
-    path.setAttributeNS(null, "stroke-width", 3);
+    path.setAttributeNS(null, "stroke-width", 4);
     path.setAttributeNS(null, "fill", "none");
     return path;
   }
@@ -386,7 +407,7 @@ let dataSet = [
     data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
   },
   {
-    color: "#6EEB83",
+    color: "#33B864",
     data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
   },
 ];
