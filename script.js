@@ -16,7 +16,6 @@ class AnaliticVideoPlayer {
 
     this.strokePaths = [];
 
-
     //use pathGenerator.js
     this.pathHandler = new pathGenerator();
 
@@ -32,6 +31,10 @@ class AnaliticVideoPlayer {
     });
   }
 
+  /**
+   * Important for preparing all data and setting listeners before starting video
+   * @param {*} dataSet
+   */
   afterLoad(dataSet) {
     let svgAfter = this.prepareSVG(this.vidWidth, this.vidHeight);
     let svgBefore = this.prepareSVG(this.vidWidth, this.vidHeight);
@@ -72,14 +75,14 @@ class AnaliticVideoPlayer {
         filled.push(fillPath);
       });
       //set strokes and filled areas into svg in correct order => stroke curves must be on top
-      [...filled,...strokes].forEach((element) => {
+      [...filled, ...strokes].forEach((element) => {
         svg.append(element);
       });
       svgBefore.style.opacity = "0.5";
     });
     this.svgBefore = svgBefore;
     this.prepareCover(this.vidWidth, this.vidHeight, svgAfter, svgBefore);
-    
+
     //creates dots and moving line on top
     this.prepareOverlay(dataSet);
     this.prepareListeners();
@@ -137,11 +140,10 @@ class AnaliticVideoPlayer {
     }
     return defs;
   }
-
   /**
    * Create svg element with specific w|h
-   * @param {*} width 
-   * @param {*} height 
+   * @param {*} width
+   * @param {*} height
    * @returns <svg>
    */
   prepareSVG(width, height) {
@@ -153,13 +155,12 @@ class AnaliticVideoPlayer {
     svg.setAttribute("height", height);
     return svg;
   }
-
   /**
    * Recalculate data to points
-   * @param {*} data 
-   * @param {*} vidWidth 
-   * @param {*} vidHeight 
-   * @returns 
+   * @param {*} data
+   * @param {*} vidWidth
+   * @param {*} vidHeight
+   * @returns
    */
   prepareData(data, vidWidth, vidHeight) {
     let points = [];
@@ -171,14 +172,13 @@ class AnaliticVideoPlayer {
     }
     return points;
   }
-
   /**
-   * Prepare cover wich contains left and right 
+   * Prepare cover wich contains left and right
    * moving svgs and other important elements
-   * @param {*} width 
-   * @param {*} height 
-   * @param {*} svgTo 
-   * @param {*} svgFrom 
+   * @param {*} width
+   * @param {*} height
+   * @param {*} svgTo
+   * @param {*} svgFrom
    */
   prepareCover(width, height, svgAfter, svgBefore) {
     let coverHolder = document.createElement("div");
@@ -210,61 +210,73 @@ class AnaliticVideoPlayer {
     this.coverL.innerHTML = this.coverL.innerHTML + "";
     this.coverR.innerHTML = this.coverR.innerHTML + "";
   }
-
   /**
    * Function will pregenerate holder which contains dots and vertical line
-   * @param {*} dataSet 
+   * @param {*} dataSet
    */
-  prepareOverlay(dataSet){
+  prepareOverlay(dataSet) {
     let dotHolder = this.prepareSVG(this.vidWidth, this.vidHeight);
     dotHolder.classList.add("dotHolder");
     let dotMax = this.vidHeight;
     //dots
-    let dots = dataSet.map((dataRow)=>{
-      if(((100-dataRow.data[0])/100)*this.vidHeight<dotMax){
-        dotMax = ((100-dataRow.data[0])/100)*this.vidHeight
+    let dots = dataSet.map((dataRow) => {
+      if (((100 - dataRow.data[0]) / 100) * this.vidHeight < dotMax) {
+        dotMax = ((100 - dataRow.data[0]) / 100) * this.vidHeight;
       }
-      let dot = this.generateDot(dataRow.color,0,((100-dataRow.data[0])/100)*this.vidHeight);
+      let dot = this.generateDot(
+        dataRow.color,
+        0,
+        ((100 - dataRow.data[0]) / 100) * this.vidHeight
+      );
       return dot;
-    })
+    });
     //line
     this.line = this.generateVerticalLine(dotMax);
     dotHolder.append(this.line);
-    dots.map((dot)=>{
+    dots.map((dot) => {
       dotHolder.appendChild(dot);
-    })
+    });
     this.coverHolder.appendChild(dotHolder);
   }
 
-  generateVerticalLine(startingHeigth){
-    let line = document.createElementNS("http://www.w3.org/2000/svg","line");
-    line.setAttribute("x1","0");
-    line.setAttribute("y1",this.vidHeight);
-    line.setAttribute("x2","0");
-    line.setAttribute("y2",startingHeigth);
-    line.setAttribute("stroke","white");
-    line.setAttribute("stroke-width","2")
-    line.setAttribute("stroke-dasharray", "3")
+
+  generateVerticalLine(startingHeigth) {
+    let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", "0");
+    line.setAttribute("y1", this.vidHeight);
+    line.setAttribute("x2", "0");
+    line.setAttribute("y2", startingHeigth);
+    line.setAttribute("stroke", "white");
+    line.setAttribute("stroke-width", "2");
+    line.setAttribute("stroke-dasharray", "3");
     return line;
   }
-
   /**
    * Function responsible for generating dots on default position with specific color
-   * @param {*} color 
-   * @param {*} posX 
-   * @param {*} posY 
-   * @returns 
+   * @param {*} color
+   * @param {*} posX
+   * @param {*} posY
+   * @returns
    */
-  generateDot(color, posX, posY){
-    let circleGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
+  generateDot(color, posX, posY) {
+    let circleGroup = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "g"
+    );
 
-    let outerCircle = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    outerCircle.setAttribute("r","9");
+    let outerCircle = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle"
+    );
+    outerCircle.setAttribute("r", "9");
     outerCircle.setAttribute("fill", "white");
     circleGroup.appendChild(outerCircle);
 
-    let innerCircle = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    innerCircle.setAttribute("r","6");
+    let innerCircle = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle"
+    );
+    innerCircle.setAttribute("r", "6");
     innerCircle.setAttribute("fill", color);
     circleGroup.appendChild(innerCircle);
 
@@ -272,60 +284,119 @@ class AnaliticVideoPlayer {
     this.dataDots.push(circleGroup);
     return circleGroup;
   }
+  /**
+   * Responsible for generating stroke curve
+   * @param {*} points
+   * @param {*} color
+   * @returns
+   */
+  generateStroke(points, color) {
+    let d = this.pathHandler.svgPath(points, color);
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttributeNS(null, "d", d);
+    path.setAttributeNS(null, "stroke", color);
+    path.setAttributeNS(null, "stroke-width", 4);
+    path.setAttributeNS(null, "fill", "none");
+    return path;
+  }
+  /**
+   * Responsible for generating filled areas
+   * @param {*} points
+   * @param {*} color
+   * @param {*} height
+   * @param {*} widht
+   * @param {*} gradientID
+   * @returns
+   */
+  generateFill(points, color, height, widht, gradientID) {
+    let d = this.pathHandler.svgPath(points, color, true);
+    let newD = `M 0,${height}` + d + `L ${widht},${height} L 0,${height}`;
+
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttributeNS(null, "d", newD);
+    path.setAttributeNS(null, "stroke", "none");
+    path.setAttributeNS(null, "fill", `url(#gradient${gradientID})`);
+    return path;
+  }
 
   /**
    * Responsible for calculating point y point from x and path
-   * @param {*} path 
-   * @param {*} x 
-   * @returns 
+   * @param {*} path
+   * @param {*} x
+   * @returns
    */
   findY(path, x) {
-    var pathLength = path.getTotalLength()
-    var start = 0
-    var end = pathLength
-    var target = (start + end) / 2
-  
+    var pathLength = path.getTotalLength();
+    var start = 0;
+    var end = pathLength;
+    var target = (start + end) / 2;
+
     // Ensure that x is within the range of the path
-    x = Math.max(x, path.getPointAtLength(0).x)
-    x = Math.min(x, path.getPointAtLength(pathLength).x)
-  
-    // Walk along the path using binary search 
+    x = Math.max(x, path.getPointAtLength(0).x);
+    x = Math.min(x, path.getPointAtLength(pathLength).x);
+
+    // Walk along the path using binary search
     // to locate the point with the supplied x value
     while (target >= start && target <= pathLength) {
-      var pos = path.getPointAtLength(target)
-  
-      // use a threshold instead of strict equality 
+      var pos = path.getPointAtLength(target);
+
+      // use a threshold instead of strict equality
       // to handle javascript floating point precision
       if (Math.abs(pos.x - x) < 0.001) {
-        return pos.y
+        return pos.y;
       } else if (pos.x > x) {
-        end = target
+        end = target;
       } else {
-        start = target
+        start = target;
       }
-      target = (start + end) / 2
+      target = (start + end) / 2;
     }
   }
 
-  updateDots(percents){
+  /**
+   * Updating cover on percent
+   * @param {*} percents
+   */
+  updateCover(percents) {
+    //change of left cover widht
+    this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
+    //move viewbox data
+    document
+      .getElementById("svgBefore")
+      .setAttribute(
+        "viewBox",
+        `${this.vidWidth * (percents * 1000)} 0 ${this.vidWidth} ${
+          this.vidHeight
+        }`
+      );
+    //updating dots
+    this.updateDots(percents);
+  }
+  updateDots(percents) {
     let maxDotPos = this.vidHeight;
     for (let i = 0; i < this.strokePaths.length; i++) {
       let path = this.strokePaths[i];
-      let pos = {x:this.vidWidth*1000*percents,y:this.findY(path,this.vidWidth*1000*percents)};
-      if(pos.y<maxDotPos){
+      let pos = {
+        x: this.vidWidth * 1000 * percents,
+        y: this.findY(path, this.vidWidth * 1000 * percents),
+      };
+      if (pos.y < maxDotPos) {
         maxDotPos = parseFloat(pos.y);
       }
-      this.dataDots[i].setAttribute("transform", `translate(${pos.x},${pos.y})`)
+      this.dataDots[i].setAttribute(
+        "transform",
+        `translate(${pos.x},${pos.y})`
+      );
     }
     this.updateVerticalLine(percents, maxDotPos);
   }
-
-  updateVerticalLine(percents, maxDotPos){
-    this.line.setAttribute("x1",this.vidWidth*percents*1000);
-    this.line.setAttribute("x2",this.vidWidth*percents*1000);
-    this.line.setAttribute("y1",this.vidHeight);
+  updateVerticalLine(percents, maxDotPos) {
+    this.line.setAttribute("x1", this.vidWidth * percents * 1000);
+    this.line.setAttribute("x2", this.vidWidth * percents * 1000);
+    this.line.setAttribute("y1", this.vidHeight);
     this.line.setAttribute("y2", maxDotPos);
   }
+
   /**
    * Will prepare all listeners to video
    */
@@ -343,62 +414,6 @@ class AnaliticVideoPlayer {
       this.updateCover(this.video.currentTime / this.vidDuration);
     });
   }
-
-  /**
-   * Updating cover on percent
-   * @param {*} percents 
-   */
-  updateCover(percents) {
-    //change of left cover widht
-    this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
-    //move viewbox data
-    document
-      .getElementById("svgBefore")
-      .setAttribute(
-        "viewBox",
-        `${this.vidWidth * (percents * 1000)} 0 ${this.vidWidth} ${
-          this.vidHeight
-        }`
-      );
-    //updating dots
-    this.updateDots(percents);
-  }
-
-  /**
-   * Responsible for generating stroke curve
-   * @param {*} points 
-   * @param {*} color 
-   * @returns 
-   */
-  generateStroke(points, color) {
-    let d = this.pathHandler.svgPath(points, color);
-    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttributeNS(null, "d", d);
-    path.setAttributeNS(null, "stroke", color);
-    path.setAttributeNS(null, "stroke-width", 4);
-    path.setAttributeNS(null, "fill", "none");
-    return path;
-  }
-
-  /**
-   * Responsible for generating filled areas
-   * @param {*} points 
-   * @param {*} color 
-   * @param {*} height 
-   * @param {*} widht 
-   * @param {*} gradientID 
-   * @returns 
-   */
-  generateFill(points, color, height, widht, gradientID) {
-    let d = this.pathHandler.svgPath(points, color, true);
-    let newD = `M 0,${height}` + d + `L ${widht},${height} L 0,${height}`;
-
-    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttributeNS(null, "d", newD);
-    path.setAttributeNS(null, "stroke", "none");
-    path.setAttributeNS(null, "fill", `url(#gradient${gradientID})`);
-    return path;
-  }
 }
 
 let dataSet = [
@@ -407,7 +422,7 @@ let dataSet = [
     data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
   },
   {
-    color: "#33B864",
+    color: "#0cf060",
     data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
   },
 ];

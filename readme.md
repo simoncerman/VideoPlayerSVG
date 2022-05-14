@@ -23,20 +23,3 @@ let dataSet = [
     data: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   },
 ];
-
-### padding
-Is just number in pixels of paddint(int/float)
-use always number value and *not* string like "10px"
-
-*STRUCTURE*
-let padding = 100;
-
-### lineStyle
-*STRUCTURE*
-let lineStyle = {
-  svgAfter: [{ qualifiedName: "stroke-width", value: "2" }],
-  svgBefore: [
-    { qualifiedName: "stroke-width", value: "1" },
-    { qualifiedName: "stroke-opacity", value: ".3" },
-  ],
-};
