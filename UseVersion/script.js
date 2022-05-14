@@ -9,12 +9,18 @@ class AnaliticVideoPlayer {
 
     //for editing width and moving curve
     this.coverL;
+    this.coverHolder;
 
     //for time handling
     this.interval;
 
+    this.strokePaths = [];
+
     //use pathGenerator.js
     this.pathHandler = new pathGenerator();
+
+    //dots moving in time
+    this.dataDots = [];
 
     //after loading metadata of video
     this.video.addEventListener("loadedmetadata", () => {
@@ -25,6 +31,10 @@ class AnaliticVideoPlayer {
     });
   }
 
+  /**
+   * Important for preparing all data and setting listeners before starting video
+   * @param {*} dataSet
+   */
   afterLoad(dataSet) {
     let svgAfter = this.prepareSVG(this.vidWidth, this.vidHeight);
     let svgBefore = this.prepareSVG(this.vidWidth, this.vidHeight);
@@ -48,6 +58,7 @@ class AnaliticVideoPlayer {
         let strokePath = this.generateStroke(points, dataRow.color);
         if (svg == svgBefore) {
           strokePath.setAttributeNS(null, "stroke", "gray");
+          this.strokePaths.push(strokePath);
         }
         let gradientID = dataSet.indexOf(dataRow);
         if (svg == svgBefore) {
@@ -64,12 +75,16 @@ class AnaliticVideoPlayer {
         filled.push(fillPath);
       });
       //set strokes and filled areas into svg in correct order => stroke curves must be on top
-      [...filled,...strokes].forEach((element) => {
+      [...filled, ...strokes].forEach((element) => {
         svg.append(element);
       });
+      svgBefore.style.opacity = "0.5";
     });
     this.svgBefore = svgBefore;
     this.prepareCover(this.vidWidth, this.vidHeight, svgAfter, svgBefore);
+
+    //creates dots and moving line on top
+    this.prepareOverlay(dataSet);
     this.prepareListeners();
   }
 
@@ -104,7 +119,7 @@ class AnaliticVideoPlayer {
       } else {
         stop1.setAttributeNS(null, "stop-color", dataRow.color);
       }
-      stop1.setAttributeNS(null, "stop-opacity", "80%");
+      stop1.setAttributeNS(null, "stop-opacity", "90%");
 
       let stop2 = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -125,11 +140,10 @@ class AnaliticVideoPlayer {
     }
     return defs;
   }
-
   /**
    * Create svg element with specific w|h
-   * @param {*} width 
-   * @param {*} height 
+   * @param {*} width
+   * @param {*} height
    * @returns <svg>
    */
   prepareSVG(width, height) {
@@ -141,13 +155,12 @@ class AnaliticVideoPlayer {
     svg.setAttribute("height", height);
     return svg;
   }
-
   /**
    * Recalculate data to points
-   * @param {*} data 
-   * @param {*} vidWidth 
-   * @param {*} vidHeight 
-   * @returns 
+   * @param {*} data
+   * @param {*} vidWidth
+   * @param {*} vidHeight
+   * @returns
    */
   prepareData(data, vidWidth, vidHeight) {
     let points = [];
@@ -159,16 +172,15 @@ class AnaliticVideoPlayer {
     }
     return points;
   }
-
   /**
-   * Prepare cover wich contains left and right 
+   * Prepare cover wich contains left and right
    * moving svgs and other important elements
-   * @param {*} width 
-   * @param {*} height 
-   * @param {*} svgTo 
-   * @param {*} svgFrom 
+   * @param {*} width
+   * @param {*} height
+   * @param {*} svgTo
+   * @param {*} svgFrom
    */
-  prepareCover(width, height, svgTo, svgFrom) {
+  prepareCover(width, height, svgAfter, svgBefore) {
     let coverHolder = document.createElement("div");
     let coverL = document.createElement("div");
     let coverR = document.createElement("div");
@@ -183,24 +195,210 @@ class AnaliticVideoPlayer {
     coverL.style.width = "0px";
     coverL.style.overflow = "hidden";
     coverL.style.float = "left";
-    coverL.appendChild(svgTo);
+    coverL.appendChild(svgAfter);
     coverR.style.pointerEvents = "none";
     coverR.style.overflow = "hidden";
 
-    coverR.appendChild(svgFrom);
+    coverR.appendChild(svgBefore);
 
     this.coverL = coverL;
     this.coverR = coverR;
     this.videoPlayer.appendChild(coverHolder);
+    this.coverHolder = coverHolder;
 
     //fix dont remove important
     this.coverL.innerHTML = this.coverL.innerHTML + "";
     this.coverR.innerHTML = this.coverR.innerHTML + "";
   }
+  /**
+   * Function will pregenerate holder which contains dots and vertical line
+   * @param {*} dataSet
+   */
+  prepareOverlay(dataSet) {
+    let dotHolder = this.prepareSVG(this.vidWidth, this.vidHeight);
+    dotHolder.classList.add("dotHolder");
+    let dotMax = this.vidHeight;
+    //dots
+    let dots = dataSet.map((dataRow) => {
+      if (((100 - dataRow.data[0]) / 100) * this.vidHeight < dotMax) {
+        dotMax = ((100 - dataRow.data[0]) / 100) * this.vidHeight;
+      }
+      let dot = this.generateDot(
+        dataRow.color,
+        0,
+        ((100 - dataRow.data[0]) / 100) * this.vidHeight
+      );
+      return dot;
+    });
+    //line
+    this.line = this.generateVerticalLine(dotMax);
+    dotHolder.append(this.line);
+    dots.map((dot) => {
+      dotHolder.appendChild(dot);
+    });
+    this.coverHolder.appendChild(dotHolder);
+  }
 
+
+  generateVerticalLine(startingHeigth) {
+    let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", "0");
+    line.setAttribute("y1", this.vidHeight);
+    line.setAttribute("x2", "0");
+    line.setAttribute("y2", startingHeigth);
+    line.setAttribute("stroke", "white");
+    line.setAttribute("stroke-width", "2");
+    line.setAttribute("stroke-dasharray", "3");
+    return line;
+  }
+  /**
+   * Function responsible for generating dots on default position with specific color
+   * @param {*} color
+   * @param {*} posX
+   * @param {*} posY
+   * @returns
+   */
+  generateDot(color, posX, posY) {
+    let circleGroup = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "g"
+    );
+
+    let outerCircle = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle"
+    );
+    outerCircle.setAttribute("r", "9");
+    outerCircle.setAttribute("fill", "white");
+    circleGroup.appendChild(outerCircle);
+
+    let innerCircle = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "circle"
+    );
+    innerCircle.setAttribute("r", "6");
+    innerCircle.setAttribute("fill", color);
+    circleGroup.appendChild(innerCircle);
+
+    circleGroup.setAttribute("transform", `translate(${posX},${posY})`);
+    this.dataDots.push(circleGroup);
+    return circleGroup;
+  }
+  /**
+   * Responsible for generating stroke curve
+   * @param {*} points
+   * @param {*} color
+   * @returns
+   */
+  generateStroke(points, color) {
+    let d = this.pathHandler.svgPath(points, color);
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttributeNS(null, "d", d);
+    path.setAttributeNS(null, "stroke", color);
+    path.setAttributeNS(null, "stroke-width", 4);
+    path.setAttributeNS(null, "fill", "none");
+    return path;
+  }
+  /**
+   * Responsible for generating filled areas
+   * @param {*} points
+   * @param {*} color
+   * @param {*} height
+   * @param {*} widht
+   * @param {*} gradientID
+   * @returns
+   */
+  generateFill(points, color, height, widht, gradientID) {
+    let d = this.pathHandler.svgPath(points, color, true);
+    let newD = `M 0,${height}` + d + `L ${widht},${height} L 0,${height}`;
+
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttributeNS(null, "d", newD);
+    path.setAttributeNS(null, "stroke", "none");
+    path.setAttributeNS(null, "fill", `url(#gradient${gradientID})`);
+    return path;
+  }
 
   /**
-   * 
+   * Responsible for calculating point y point from x and path
+   * @param {*} path
+   * @param {*} x
+   * @returns
+   */
+  findY(path, x) {
+    var pathLength = path.getTotalLength();
+    var start = 0;
+    var end = pathLength;
+    var target = (start + end) / 2;
+
+    // Ensure that x is within the range of the path
+    x = Math.max(x, path.getPointAtLength(0).x);
+    x = Math.min(x, path.getPointAtLength(pathLength).x);
+
+    // Walk along the path using binary search
+    // to locate the point with the supplied x value
+    while (target >= start && target <= pathLength) {
+      var pos = path.getPointAtLength(target);
+
+      // use a threshold instead of strict equality
+      // to handle javascript floating point precision
+      if (Math.abs(pos.x - x) < 0.001) {
+        return pos.y;
+      } else if (pos.x > x) {
+        end = target;
+      } else {
+        start = target;
+      }
+      target = (start + end) / 2;
+    }
+  }
+
+  /**
+   * Updating cover on percent
+   * @param {*} percents
+   */
+  updateCover(percents) {
+    //change of left cover widht
+    this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
+    //move viewbox data
+    document
+      .getElementById("svgBefore")
+      .setAttribute(
+        "viewBox",
+        `${this.vidWidth * (percents * 1000)} 0 ${this.vidWidth} ${
+          this.vidHeight
+        }`
+      );
+    //updating dots
+    this.updateDots(percents);
+  }
+  updateDots(percents) {
+    let maxDotPos = this.vidHeight;
+    for (let i = 0; i < this.strokePaths.length; i++) {
+      let path = this.strokePaths[i];
+      let pos = {
+        x: this.vidWidth * 1000 * percents,
+        y: this.findY(path, this.vidWidth * 1000 * percents),
+      };
+      if (pos.y < maxDotPos) {
+        maxDotPos = parseFloat(pos.y);
+      }
+      this.dataDots[i].setAttribute(
+        "transform",
+        `translate(${pos.x},${pos.y})`
+      );
+    }
+    this.updateVerticalLine(percents, maxDotPos);
+  }
+  updateVerticalLine(percents, maxDotPos) {
+    this.line.setAttribute("x1", this.vidWidth * percents * 1000);
+    this.line.setAttribute("x2", this.vidWidth * percents * 1000);
+    this.line.setAttribute("y1", this.vidHeight);
+    this.line.setAttribute("y2", maxDotPos);
+  }
+
+  /**
+   * Will prepare all listeners to video
    */
   prepareListeners() {
     this.video.addEventListener("play", () => {
@@ -215,40 +413,5 @@ class AnaliticVideoPlayer {
     this.video.addEventListener("seeking", () => {
       this.updateCover(this.video.currentTime / this.vidDuration);
     });
-  }
-
-  updateCover(percents) {
-    //change of left cover widht
-    this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
-    //move viewbox data
-    document
-      .getElementById("svgBefore")
-      .setAttribute(
-        "viewBox",
-        `${this.vidWidth * (percents * 1000)} 0 ${this.vidWidth} ${
-          this.vidHeight
-        }`
-      );
-  }
-
-  generateStroke(points, color) {
-    let d = this.pathHandler.svgPath(points, color);
-    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttributeNS(null, "d", d);
-    path.setAttributeNS(null, "stroke", color);
-    path.setAttributeNS(null, "stroke-width", 3);
-    path.setAttributeNS(null, "fill", "none");
-    return path;
-  }
-
-  generateFill(points, color, height, widht, gradientID) {
-    let d = this.pathHandler.svgPath(points, color, true);
-    let newD = `M 0,${height}` + d + `L ${widht},${height} L 0,${height}`;
-
-    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttributeNS(null, "d", newD);
-    path.setAttributeNS(null, "stroke", "none");
-    path.setAttributeNS(null, "fill", `url(#gradient${gradientID})`);
-    return path;
   }
 }
