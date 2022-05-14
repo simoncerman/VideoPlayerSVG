@@ -295,7 +295,7 @@ class AnaliticVideoPlayer {
     let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttributeNS(null, "d", d);
     path.setAttributeNS(null, "stroke", color);
-    path.setAttributeNS(null, "stroke-width", 4);
+    path.setAttributeNS(null, "stroke-width", 5);
     path.setAttributeNS(null, "fill", "none");
     return path;
   }
@@ -422,7 +422,7 @@ let dataSet = [
     data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
   },
   {
-    color: "#0cf060",
+    color: "#13EFC9",
     data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
   },
 ];
