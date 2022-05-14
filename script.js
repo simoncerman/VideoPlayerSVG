@@ -74,13 +74,13 @@ class AnaliticVideoPlayer {
       [...filled,...strokes].forEach((element) => {
         svg.append(element);
       });
+      svgBefore.style.opacity = "0.5";
     });
     this.svgBefore = svgBefore;
     this.prepareCover(this.vidWidth, this.vidHeight, svgAfter, svgBefore);
     
     //creates dots and moving line on top
     this.prepareOverlay(dataSet);
-
     this.prepareListeners();
   }
 
@@ -115,7 +115,7 @@ class AnaliticVideoPlayer {
       } else {
         stop1.setAttributeNS(null, "stop-color", dataRow.color);
       }
-      stop1.setAttributeNS(null, "stop-opacity", "80%");
+      stop1.setAttributeNS(null, "stop-opacity", "90%");
 
       let stop2 = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -210,30 +210,46 @@ class AnaliticVideoPlayer {
     this.coverR.innerHTML = this.coverR.innerHTML + "";
   }
 
+  /**
+   * Function will pregenerate holder which contains dots and vertical line
+   * @param {*} dataSet 
+   */
   prepareOverlay(dataSet){
     let dotHolder = this.prepareSVG(this.vidWidth, this.vidHeight);
-    dotHolder.style.width = "100%";
-    dotHolder.style.height = "100%";
-    dotHolder.style.position = "absolute";
-    dotHolder.style.top = "0px";
+    dotHolder.classList.add("dotHolder");
+    //dots
     let dots = dataSet.map((dataRow)=>{
       let dot = this.generateDot(dataRow.color,0,((100-dataRow.data[0])/100)*this.vidHeight);
       dotHolder.appendChild(dot);
       return dot;
     })
+    //line
+    let line = generateVerticalLine();
     this.coverHolder.appendChild(dotHolder);
   }
 
+  generateVerticalLine(){
+    
+  }
+
+  /**
+   * Function responsible for generating dots on default position with specific color
+   * @param {*} color 
+   * @param {*} posX 
+   * @param {*} posY 
+   * @returns 
+   */
   generateDot(color, posX, posY){
     let circleGroup = document.createElementNS("http://www.w3.org/2000/svg","g");
+
     let outerCircle = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    outerCircle.setAttributeNS(null,"r","12");
-    outerCircle.setAttributeNS(null, "fill", "white");
+    outerCircle.setAttribute("r","12");
+    outerCircle.setAttribute("fill", "white");
     circleGroup.appendChild(outerCircle);
 
     let innerCircle = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    innerCircle.setAttributeNS(null,"r","8");
-    innerCircle.setAttributeNS(null, "fill", color);
+    innerCircle.setAttribute("r","8");
+    innerCircle.setAttribute("fill", color);
     circleGroup.appendChild(innerCircle);
 
     circleGroup.setAttribute("transform", `translate(${posX},${posY})`);
@@ -241,6 +257,12 @@ class AnaliticVideoPlayer {
     return circleGroup;
   }
 
+  /**
+   * Responsible for calculating point y point from x and path
+   * @param {*} path 
+   * @param {*} x 
+   * @returns 
+   */
   findY(path, x) {
     var pathLength = path.getTotalLength()
     var start = 0
@@ -276,8 +298,9 @@ class AnaliticVideoPlayer {
       let pos = {x:this.vidWidth*1000*percents,y:this.findY(path,this.vidWidth*1000*percents)};
       this.dataDots[i].setAttribute("transform", `translate(${pos.x},${pos.y})`)
     }
-    
+  }
 
+  updateVerticalLine(){
 
   }
   /**
@@ -316,6 +339,8 @@ class AnaliticVideoPlayer {
       );
     //updating dots
     this.updateDots(percents);
+    //update vertical line
+    this.updateVerticalLine(percents);
   }
 
   /**
