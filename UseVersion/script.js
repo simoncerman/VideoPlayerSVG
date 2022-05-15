@@ -119,7 +119,7 @@ class AnaliticVideoPlayer {
       } else {
         stop1.setAttributeNS(null, "stop-color", dataRow.color);
       }
-      stop1.setAttributeNS(null, "stop-opacity", "90%");
+      stop1.setAttributeNS(null, "stop-opacity", "80%");
 
       let stop2 = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -203,6 +203,8 @@ class AnaliticVideoPlayer {
 
     this.coverL = coverL;
     this.coverR = coverR;
+
+    coverHolder.style.display = "none";
     this.videoPlayer.appendChild(coverHolder);
     this.coverHolder = coverHolder;
 
@@ -295,7 +297,7 @@ class AnaliticVideoPlayer {
     let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttributeNS(null, "d", d);
     path.setAttributeNS(null, "stroke", color);
-    path.setAttributeNS(null, "stroke-width", 4);
+    path.setAttributeNS(null, "stroke-width", 5);
     path.setAttributeNS(null, "fill", "none");
     return path;
   }
@@ -402,6 +404,11 @@ class AnaliticVideoPlayer {
    */
   prepareListeners() {
     this.video.addEventListener("play", () => {
+      if(!this.firstPlay){
+        this.coverHolder.style.display = "block";
+        this.firstPlay = true;
+        console.log("XD");
+      }
       this.interval = setInterval(() => {
         this.updateCover(this.video.currentTime / this.vidDuration);
       }, 10);
