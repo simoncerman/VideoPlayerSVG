@@ -1,5 +1,9 @@
 #video-player{
     position: relative;
+    width: 50rem;
+}
+#main-video{
+    width: 100%;
 }
 *{
     box-sizing: border-box;

@@ -368,7 +368,7 @@ class AnaliticVideoPlayer {
    */
   updateCover(percents) {
     //change of left cover widht
-    this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
+    this.coverL.style.width =  (percents * 100000) + "%";
     //updating dots
     this.updateDots(percents);
   }
