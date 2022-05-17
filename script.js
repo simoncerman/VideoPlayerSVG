@@ -148,11 +148,10 @@ class AnaliticVideoPlayer {
    */
   prepareSVG(width, height) {
     let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("version", "1.1");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svg.setAttribute("width", width);
-    svg.setAttribute("height", height);
+    svg.setAttribute("width", "100%");
+    svg.setAttribute("height", "100%");
     return svg;
   }
   /**
@@ -190,14 +189,15 @@ class AnaliticVideoPlayer {
     svgBefore.style.right = 0;
     svgBefore.style.position = "absolute";
 
-    coverHolder.style.width = width + "px";
-    coverHolder.style.height = height + "px";
+    coverHolder.style.width = "100%";
+    coverHolder.style.height = "50%";
     coverHolder.style.padding = this.padding + "px";
     coverHolder.classList.add("coverHolder");
 
     coverL.style.width = "0px";
     coverL.style.overflow = "hidden";
     coverL.style.float = "left";
+    coverL.style.height = "100%";
     coverL.appendChild(svgAfter);
 
     coverR.style.pointerEvents = "none";
