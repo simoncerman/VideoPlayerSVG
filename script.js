@@ -187,6 +187,9 @@ class AnaliticVideoPlayer {
     coverHolder.appendChild(coverL);
     coverHolder.appendChild(coverR);
 
+    svgBefore.style.right = 0;
+    svgBefore.style.position = "absolute";
+
     coverHolder.style.width = width + "px";
     coverHolder.style.height = height + "px";
     coverHolder.style.padding = this.padding + "px";
@@ -196,8 +199,12 @@ class AnaliticVideoPlayer {
     coverL.style.overflow = "hidden";
     coverL.style.float = "left";
     coverL.appendChild(svgAfter);
+
     coverR.style.pointerEvents = "none";
     coverR.style.overflow = "hidden";
+    coverR.style.height = "100%";
+    coverR.style.position = "relative";
+
 
     coverR.appendChild(svgBefore);
 
@@ -362,15 +369,6 @@ class AnaliticVideoPlayer {
   updateCover(percents) {
     //change of left cover widht
     this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
-    //move viewbox data
-    document
-      .getElementById("svgBefore")
-      .setAttribute(
-        "viewBox",
-        `${this.vidWidth * (percents * 1000)} 0 ${this.vidWidth} ${
-          this.vidHeight
-        }`
-      );
     //updating dots
     this.updateDots(percents);
   }
