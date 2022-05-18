@@ -234,6 +234,16 @@ class AnaliticVideoPlayer {
       dotHolder.appendChild(dot);
     });
     this.coverHolder.appendChild(dotHolder);
+    //button
+    let btn = this.generateLegendButton();
+    this.videoPlayer.appendChild(btn)
+  }
+
+  generateLegendButton(){
+    let button = document.createElement("button");
+    button.classList.add("buttonLegend");
+    button.innerHTML = "Show legend";
+    return button;
   }
 
   generateVerticalLine(startingHeigth) {
