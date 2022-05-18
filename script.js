@@ -223,7 +223,8 @@ class AnaliticVideoPlayer {
       let dot = this.generateDot(
         dataRow.color,
         0,
-        ((100 - dataRow.data[0]) / 100) * this.vidHeight
+        ((100 - dataRow.data[0]) / 100) * this.vidHeight,
+        dataRow.legendText
       );
       return dot;
     });
@@ -243,6 +244,9 @@ class AnaliticVideoPlayer {
     let button = document.createElement("button");
     button.classList.add("buttonLegend");
     button.innerHTML = "Show legend";
+    button.onclick = () =>{
+
+    }
     return button;
   }
 
@@ -266,7 +270,7 @@ class AnaliticVideoPlayer {
    * @param {*} posY
    * @returns
    */
-  generateDot(color, posX, posY) {
+  generateDot(color, posX, posY, txt) {
     let circleGroup = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "g"
@@ -279,6 +283,11 @@ class AnaliticVideoPlayer {
       "http://www.w3.org/2000/svg",
       "circle"
     );
+    let legendText = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "text"
+    )
+    legendText.innerHTML = txt
 
     this.setMultipleAtributes(outerCircle, {
       r: "9",
@@ -288,10 +297,19 @@ class AnaliticVideoPlayer {
       r: "6",
       fill: color,
     });
+    this.setMultipleAtributes(legendText,{
+      "dominant-baseline":"middle",
+      "text-anchor":"middle",
+      "y":"-20",
+      "fill":color
+
+    })
+
     circleGroup.setAttribute("transform", `translate(${posX},${posY})`);
 
     circleGroup.appendChild(outerCircle);
     circleGroup.appendChild(innerCircle);
+    circleGroup.appendChild(legendText);
 
     this.dataDots.push(circleGroup);
     return circleGroup;
@@ -457,10 +475,12 @@ let dataSet = [
   {
     color: "#1BE7FF",
     data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
+    legendText: "Brand"
   },
   {
     color: "#13EFC9",
     data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
+    legendText: "Need"
   },
 ];
 
