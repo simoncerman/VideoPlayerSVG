@@ -238,16 +238,18 @@ class AnaliticVideoPlayer {
     this.coverHolder.appendChild(dotHolder);
   }
 
-
   generateVerticalLine(startingHeigth) {
     let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", "0");
-    line.setAttribute("y1", this.vidHeight);
-    line.setAttribute("x2", "0");
-    line.setAttribute("y2", startingHeigth);
-    line.setAttribute("stroke", "white");
-    line.setAttribute("stroke-width", "2");
-    line.setAttribute("stroke-dasharray", "3");
+    this.setMultipleAtributes(line, {
+      x1: "0",
+      y1: this.vidHeight,
+      x2: "0",
+      y2: startingHeigth,
+      stroke: "white",
+      "stroke-width": "2",
+      "stroke-dasharray": "3",
+    });
+    console.log(line);
     return line;
   }
   /**
@@ -401,7 +403,7 @@ class AnaliticVideoPlayer {
    */
   prepareListeners() {
     this.video.addEventListener("play", () => {
-      if(!this.firstPlay){
+      if (!this.firstPlay) {
         this.coverHolder.style.display = "block";
         this.firstPlay = true;
         console.log("XD");
@@ -417,6 +419,26 @@ class AnaliticVideoPlayer {
     this.video.addEventListener("seeking", () => {
       this.updateCover(this.video.currentTime / this.vidDuration);
     });
+  }
+  /**
+   *
+   * @param {*} element
+   * @param {*} atributes [{atributeName:atributeValue},...]
+   */
+  setMultipleAtributes(element, atributes) {
+    let atributeNames = Object.keys(atributes);
+    let atributeValues = Object.values(atributes);
+    for (
+      let atributeIndex = 0;
+      atributeIndex < atributeNames.length;
+      atributeIndex++
+    ) {
+      element.setAttribute(
+        atributeNames[atributeIndex],
+        atributeValues[atributeIndex]
+      );
+    }
+    return element;
   }
 }
 
