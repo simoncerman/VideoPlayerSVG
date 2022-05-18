@@ -189,23 +189,12 @@ class AnaliticVideoPlayer {
     svgBefore.style.right = 0;
     svgBefore.style.position = "absolute";
 
-    coverHolder.style.width = "100%";
-    coverHolder.style.height = "50%";
-    coverHolder.style.padding = this.padding + "px";
     coverHolder.classList.add("coverHolder");
 
-    coverL.style.width = "0px";
-    coverL.style.overflow = "hidden";
-    coverL.style.float = "left";
-    coverL.style.height = "100%";
+    coverL.classList.add("coverL");
     coverL.appendChild(svgAfter);
 
-    coverR.style.pointerEvents = "none";
-    coverR.style.overflow = "hidden";
-    coverR.style.height = "100%";
-    coverR.style.position = "relative";
-
-
+    coverR.classList.add("coverR");
     coverR.appendChild(svgBefore);
 
     this.coverL = coverL;
@@ -403,7 +392,7 @@ class AnaliticVideoPlayer {
   prepareListeners() {
     this.video.addEventListener("play", () => {
       if(!this.firstPlay){
-        this.coverHolder.style.display = "block";
+        this.coverHolder.style.display = "flex";
         this.firstPlay = true;
         console.log("XD");
       }

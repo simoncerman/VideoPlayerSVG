@@ -14,6 +14,16 @@
     z-index: 998;
     bottom:  0;
     overflow: hidden;
+    height: 50%;
+    width: 100%;
+    display: flex;
+}
+.coverR{
+    height: 100%;
+}
+.coverL{
+    height: 100%;
+    z-index: 999;
 }
 svg{
     pointer-events: none;
