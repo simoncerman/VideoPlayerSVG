@@ -24,8 +24,8 @@ class AnaliticVideoPlayer {
 
     //after loading metadata of video
     this.video.addEventListener("loadedmetadata", () => {
-      this.vidWidth = this.video.videoWidth;
-      this.vidHeight = this.video.videoHeight / 2;
+      this.vidWidth = this.video.offsetWidth;
+      this.vidHeight = this.video.offsetHeight / 2;
       this.vidDuration = this.video.duration * 1000;
       this.afterLoad(dataSet);
     });
@@ -187,8 +187,6 @@ class AnaliticVideoPlayer {
     coverHolder.appendChild(coverL);
     coverHolder.appendChild(coverR);
 
-    coverHolder.style.width = width + "px";
-    coverHolder.style.height = height + "px";
     coverHolder.style.padding = this.padding + "px";
     coverHolder.classList.add("coverHolder");
 
@@ -249,7 +247,6 @@ class AnaliticVideoPlayer {
       "stroke-width": "2",
       "stroke-dasharray": "3",
     });
-    console.log(line);
     return line;
   }
   /**
@@ -264,24 +261,28 @@ class AnaliticVideoPlayer {
       "http://www.w3.org/2000/svg",
       "g"
     );
-
     let outerCircle = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "circle"
     );
-    outerCircle.setAttribute("r", "9");
-    outerCircle.setAttribute("fill", "white");
-    circleGroup.appendChild(outerCircle);
-
     let innerCircle = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "circle"
     );
-    innerCircle.setAttribute("r", "6");
-    innerCircle.setAttribute("fill", color);
+
+    this.setMultipleAtributes(outerCircle, {
+      r: "9",
+      fill: "white",
+    });
+    this.setMultipleAtributes(innerCircle, {
+      r: "6",
+      fill: color,
+    });
+    circleGroup.setAttribute("transform", `translate(${posX},${posY})`);
+
+    circleGroup.appendChild(outerCircle);
     circleGroup.appendChild(innerCircle);
 
-    circleGroup.setAttribute("transform", `translate(${posX},${posY})`);
     this.dataDots.push(circleGroup);
     return circleGroup;
   }
@@ -360,7 +361,7 @@ class AnaliticVideoPlayer {
    */
   updateCover(percents) {
     //change of left cover widht
-    this.coverL.style.width = this.vidWidth * (percents * 1000) + "px";
+    this.coverL.style.width = 100 * (percents * 1000) + "%";
     //move viewbox data
     document
       .getElementById("svgBefore")

@@ -1,6 +1,9 @@
 #video-player{
     position: relative;
 }
+#main-video{
+    width: 100%;
+}
 *{
     box-sizing: border-box;
 }
@@ -10,14 +13,18 @@
     z-index: 998;
     bottom:  0;
     overflow: hidden;
+    width:-webkit-fill-available;
+    height: 50%;
 }
 .coverL{
     width: 0;
     overflow: hidden;
     float: left;
+    height: 100%;
 }
 .coverR{
     overflow: hidden;
+    height: 100%;
 }
 svg{
     pointer-events: none;
