@@ -192,13 +192,10 @@ class AnaliticVideoPlayer {
     coverHolder.style.padding = this.padding + "px";
     coverHolder.classList.add("coverHolder");
 
-    coverL.style.width = "0px";
-    coverL.style.overflow = "hidden";
-    coverL.style.float = "left";
+    coverL.classList.add("coverL");
     coverL.appendChild(svgAfter);
-    coverR.style.pointerEvents = "none";
-    coverR.style.overflow = "hidden";
 
+    coverR.classList.add("coverR");
     coverR.appendChild(svgBefore);
 
     this.coverL = coverL;

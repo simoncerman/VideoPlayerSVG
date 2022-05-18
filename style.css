@@ -11,6 +11,14 @@
     bottom:  0;
     overflow: hidden;
 }
+.coverL{
+    width: 0;
+    overflow: hidden;
+    float: left;
+}
+.coverR{
+    overflow: hidden;
+}
 svg{
     pointer-events: none;
 }
