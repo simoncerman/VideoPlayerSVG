@@ -15,6 +15,7 @@ class AnaliticVideoPlayer {
     this.interval;
 
     this.strokePaths = [];
+    this.legendTexts = [];
 
     //use pathGenerator.js
     this.pathHandler = new pathGenerator();
@@ -237,16 +238,24 @@ class AnaliticVideoPlayer {
     this.coverHolder.appendChild(dotHolder);
     //button
     let btn = this.generateLegendButton();
-    this.videoPlayer.appendChild(btn)
+    this.videoPlayer.appendChild(btn);
   }
 
-  generateLegendButton(){
+  generateLegendButton() {
     let button = document.createElement("button");
     button.classList.add("buttonLegend");
     button.innerHTML = "Show legend";
-    button.onclick = () =>{
-
-    }
+    button.id = "showLegendBtn"
+    button.style.visibility ="hidden";
+    button.onclick = () => {
+      this.legendTexts.map((legendText) => {
+        if (legendText.style.visibility == "hidden") {
+          legendText.style.visibility = "visible";
+        } else {
+          legendText.style.visibility = "hidden";
+        }
+      });
+    };
     return button;
   }
 
@@ -286,9 +295,7 @@ class AnaliticVideoPlayer {
     let legendText = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "text"
-    )
-    legendText.innerHTML = txt
-
+    );
     this.setMultipleAtributes(outerCircle, {
       r: "9",
       fill: "white",
@@ -297,13 +304,17 @@ class AnaliticVideoPlayer {
       r: "6",
       fill: color,
     });
-    this.setMultipleAtributes(legendText,{
-      "dominant-baseline":"middle",
-      "text-anchor":"middle",
-      "y":"-20",
-      "fill":color
+    this.setMultipleAtributes(legendText, {
+      "dominant-baseline": "middle",
+      "text-anchor": "middle",
+      y: "-20",
+      fill: color,
+      "font-family": "Arial, Helvetica, sans-serif",
+    });
 
-    })
+    legendText.innerHTML = txt;
+    legendText.style.visibility = "hidden";
+    this.legendTexts.push(legendText);
 
     circleGroup.setAttribute("transform", `translate(${posX},${posY})`);
 
@@ -435,7 +446,7 @@ class AnaliticVideoPlayer {
       if (!this.firstPlay) {
         this.coverHolder.style.display = "block";
         this.firstPlay = true;
-        console.log("XD");
+        document.getElementById("showLegendBtn").style.visibility = "visible";
       }
       this.interval = setInterval(() => {
         this.updateCover(this.video.currentTime / this.vidDuration);
@@ -475,12 +486,12 @@ let dataSet = [
   {
     color: "#1BE7FF",
     data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
-    legendText: "Brand"
+    legendText: "Brand",
   },
   {
     color: "#13EFC9",
     data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
-    legendText: "Need"
+    legendText: "Need",
   },
 ];
 
