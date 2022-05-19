@@ -1,51 +1,68 @@
-#video-player{
-    position: relative;
-    width: 50rem;
+#video-player {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
 }
-#main-video{
-    width: 100%;
+#main-video {
+  width: 100%;
+  border-radius: 1rem;
 }
-*{
-    box-sizing: border-box;
+* {
+  box-sizing: border-box;
 }
-.coverHolder{
-    position: absolute;
-    pointer-events: none;
-    z-index: 998;
-    bottom:  0;
-    overflow: hidden;
-    height: 50%;
-    width: 100%;
-    display: flex;
+.coverHolder {
+  position: absolute;
+  pointer-events: none;
+  z-index: 998;
+  bottom: 0;
+  overflow: hidden;
+  width: -webkit-fill-available;
+  height: 50%;
 }
-.coverR{
-    height: 100%;
+.coverL {
+  width: 0;
+  overflow: hidden;
+  float: left;
+  height: 100%;
 }
-.coverL{
-    height: 100%;
-    z-index: 999;
+.coverR {
+  overflow: hidden;
+  height: 100%;
 }
-svg{
-    pointer-events: none;
+svg {
+  pointer-events: none;
 }
-.percentsHolder{
-    position: absolute;
-    bottom: 0;
-    z-index: 999;
-    display: flex;
-    justify-content: space-evenly;
-    font-size: 25px;
-    pointer-events: none;
-    padding-left: 5rem;
-    padding-right: 5rem;
+.percentsHolder {
+  position: absolute;
+  bottom: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 25px;
+  pointer-events: none;
+  padding-left: 5rem;
+  padding-right: 5rem;
 }
-.percentsHolder>*{
-    text-align: center;
+.percentsHolder > * {
+  text-align: center;
 }
-.dotHolder{
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0px;
-    left: 0;
+.dotHolder {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+}
+.buttonLegend {
+  top: 1rem;
+  right: 1rem;
+  position: absolute;
+  background-color: white;
+  color: black;
+  border: 1px solid white;
+  border-radius: 2rem;
+  width: 7rem;
+  height: 2rem;
+  font-weight: 600;
+  -webkit-box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.55);
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.55);
 }
