@@ -401,15 +401,6 @@ class AnaliticVideoPlayer {
   updateCover(percents) {
     //change of left cover widht
     this.coverL.style.width = 100 * (percents * 1000) + "%";
-    //move viewbox data
-    document
-      .getElementById("svgBefore")
-      .setAttribute(
-        "viewBox",
-        `${this.vidWidth * (percents * 1000)} 0 ${this.vidWidth} ${
-          this.vidHeight
-        }`
-      );
     //updating dots
     this.updateDots(percents);
   }

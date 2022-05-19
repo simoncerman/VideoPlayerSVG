@@ -28,6 +28,7 @@
 .coverR {
   overflow: hidden;
   height: 100%;
+  direction: rtl;
 }
 svg {
   pointer-events: none;
