@@ -152,8 +152,7 @@ class AnaliticVideoPlayer {
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("version", "1.1");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svg.setAttribute("width", width);
-    svg.setAttribute("height", height);
+    svg.setAttribute("height", "100%");
     return svg;
   }
   /**

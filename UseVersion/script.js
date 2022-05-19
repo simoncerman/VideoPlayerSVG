@@ -152,8 +152,7 @@ class AnaliticVideoPlayer {
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("version", "1.1");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svg.setAttribute("width", width);
-    svg.setAttribute("height", height);
+    svg.setAttribute("height", "100%");
     return svg;
   }
   /**
@@ -401,15 +400,6 @@ class AnaliticVideoPlayer {
   updateCover(percents) {
     //change of left cover widht
     this.coverL.style.width = 100 * (percents * 1000) + "%";
-    //move viewbox data
-    document
-      .getElementById("svgBefore")
-      .setAttribute(
-        "viewBox",
-        `${this.vidWidth * (percents * 1000)} 0 ${this.vidWidth} ${
-          this.vidHeight
-        }`
-      );
     //updating dots
     this.updateDots(percents);
   }
@@ -481,20 +471,3 @@ class AnaliticVideoPlayer {
     return element;
   }
 }
-
-let dataSet = [
-  {
-    color: "#1BE7FF",
-    data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
-    legendText: "Brand",
-  },
-  {
-    color: "#13EFC9",
-    data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
-    legendText: "Need",
-  },
-];
-
-
-let playerHandler = new AnaliticVideoPlayer(dataSet);
-
