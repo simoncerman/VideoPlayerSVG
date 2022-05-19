@@ -149,10 +149,11 @@ class AnaliticVideoPlayer {
    */
   prepareSVG(width, height) {
     let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     svg.setAttribute("version", "1.1");
     svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svg.setAttribute("width", "100%");
-    svg.setAttribute("height", "100%");
+    svg.setAttribute("width", width);
+    svg.setAttribute("height", height);
     return svg;
   }
   /**
@@ -187,10 +188,7 @@ class AnaliticVideoPlayer {
     coverHolder.appendChild(coverL);
     coverHolder.appendChild(coverR);
 
-
-    svgBefore.style.right = 0;
-    svgBefore.style.position = "absolute";
-
+    coverHolder.style.padding = this.padding + "px";
     coverHolder.classList.add("coverHolder");
 
     coverL.classList.add("coverL");
