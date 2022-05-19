@@ -15,7 +15,6 @@ class AnaliticVideoPlayer {
     this.interval;
 
     this.strokePaths = [];
-    this.legendTexts = [];
 
     //use pathGenerator.js
     this.pathHandler = new pathGenerator();
@@ -25,8 +24,8 @@ class AnaliticVideoPlayer {
 
     //after loading metadata of video
     this.video.addEventListener("loadedmetadata", () => {
-      this.vidWidth = this.video.offsetWidth;
-      this.vidHeight = this.video.offsetHeight / 2;
+      this.vidWidth = this.video.videoWidth;
+      this.vidHeight = this.video.videoHeight / 2;
       this.vidDuration = this.video.duration * 1000;
       this.afterLoad(dataSet);
     });
@@ -187,7 +186,6 @@ class AnaliticVideoPlayer {
     coverHolder.appendChild(coverL);
     coverHolder.appendChild(coverR);
 
-
     svgBefore.style.right = 0;
     svgBefore.style.position = "absolute";
 
@@ -226,8 +224,7 @@ class AnaliticVideoPlayer {
       let dot = this.generateDot(
         dataRow.color,
         0,
-        ((100 - dataRow.data[0]) / 100) * this.vidHeight,
-        dataRow.legendText
+        ((100 - dataRow.data[0]) / 100) * this.vidHeight
       );
       return dot;
     });
@@ -238,40 +235,18 @@ class AnaliticVideoPlayer {
       dotHolder.appendChild(dot);
     });
     this.coverHolder.appendChild(dotHolder);
-    //button
-    let btn = this.generateLegendButton();
-    this.videoPlayer.appendChild(btn);
   }
 
-  generateLegendButton() {
-    let button = document.createElement("button");
-    button.classList.add("buttonLegend");
-    button.innerHTML = "Show legend";
-    button.id = "showLegendBtn"
-    button.style.visibility ="hidden";
-    button.onclick = () => {
-      this.legendTexts.map((legendText) => {
-        if (legendText.style.visibility == "hidden") {
-          legendText.style.visibility = "visible";
-        } else {
-          legendText.style.visibility = "hidden";
-        }
-      });
-    };
-    return button;
-  }
 
   generateVerticalLine(startingHeigth) {
     let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    this.setMultipleAtributes(line, {
-      x1: "0",
-      y1: this.vidHeight,
-      x2: "0",
-      y2: startingHeigth,
-      stroke: "white",
-      "stroke-width": "2",
-      "stroke-dasharray": "3",
-    });
+    line.setAttribute("x1", "0");
+    line.setAttribute("y1", this.vidHeight);
+    line.setAttribute("x2", "0");
+    line.setAttribute("y2", startingHeigth);
+    line.setAttribute("stroke", "white");
+    line.setAttribute("stroke-width", "2");
+    line.setAttribute("stroke-dasharray", "3");
     return line;
   }
   /**
@@ -281,49 +256,29 @@ class AnaliticVideoPlayer {
    * @param {*} posY
    * @returns
    */
-  generateDot(color, posX, posY, txt) {
+  generateDot(color, posX, posY) {
     let circleGroup = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "g"
     );
+
     let outerCircle = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "circle"
     );
+    outerCircle.setAttribute("r", "9");
+    outerCircle.setAttribute("fill", "white");
+    circleGroup.appendChild(outerCircle);
+
     let innerCircle = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "circle"
     );
-    let legendText = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "text"
-    );
-    this.setMultipleAtributes(outerCircle, {
-      r: "9",
-      fill: "white",
-    });
-    this.setMultipleAtributes(innerCircle, {
-      r: "6",
-      fill: color,
-    });
-    this.setMultipleAtributes(legendText, {
-      "dominant-baseline": "middle",
-      "text-anchor": "middle",
-      y: "-20",
-      fill: color,
-      "font-family": "Arial, Helvetica, sans-serif",
-    });
-
-    legendText.innerHTML = txt;
-    legendText.style.visibility = "hidden";
-    this.legendTexts.push(legendText);
+    innerCircle.setAttribute("r", "6");
+    innerCircle.setAttribute("fill", color);
+    circleGroup.appendChild(innerCircle);
 
     circleGroup.setAttribute("transform", `translate(${posX},${posY})`);
-
-    circleGroup.appendChild(outerCircle);
-    circleGroup.appendChild(innerCircle);
-    circleGroup.appendChild(legendText);
-
     this.dataDots.push(circleGroup);
     return circleGroup;
   }
@@ -402,16 +357,7 @@ class AnaliticVideoPlayer {
    */
   updateCover(percents) {
     //change of left cover widht
-    this.coverL.style.width = 100 * (percents * 1000) + "%";
-    //move viewbox data
-    document
-      .getElementById("svgBefore")
-      .setAttribute(
-        "viewBox",
-        `${this.vidWidth * (percents * 1000)} 0 ${this.vidWidth} ${
-          this.vidHeight
-        }`
-      );
+    this.coverL.style.width =  (percents * 100000) + "%";
     //updating dots
     this.updateDots(percents);
   }
@@ -445,10 +391,10 @@ class AnaliticVideoPlayer {
    */
   prepareListeners() {
     this.video.addEventListener("play", () => {
-      if (!this.firstPlay) {
-        this.coverHolder.style.display = "block";
+      if(!this.firstPlay){
+        this.coverHolder.style.display = "flex";
         this.firstPlay = true;
-        document.getElementById("showLegendBtn").style.visibility = "visible";
+        console.log("XD");
       }
       this.interval = setInterval(() => {
         this.updateCover(this.video.currentTime / this.vidDuration);
@@ -462,38 +408,16 @@ class AnaliticVideoPlayer {
       this.updateCover(this.video.currentTime / this.vidDuration);
     });
   }
-  /**
-   *
-   * @param {*} element
-   * @param {*} atributes [{atributeName:atributeValue},...]
-   */
-  setMultipleAtributes(element, atributes) {
-    let atributeNames = Object.keys(atributes);
-    let atributeValues = Object.values(atributes);
-    for (
-      let atributeIndex = 0;
-      atributeIndex < atributeNames.length;
-      atributeIndex++
-    ) {
-      element.setAttribute(
-        atributeNames[atributeIndex],
-        atributeValues[atributeIndex]
-      );
-    }
-    return element;
-  }
 }
 
 let dataSet = [
   {
     color: "#1BE7FF",
     data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
-    legendText: "Brand",
   },
   {
     color: "#13EFC9",
     data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
-    legendText: "Need",
   },
 ];
 
