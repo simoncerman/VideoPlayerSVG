@@ -247,8 +247,8 @@ class AnaliticVideoPlayer {
     let button = document.createElement("button");
     button.classList.add("buttonLegend");
     button.innerHTML = "Show legend";
-    button.id = "showLegendBtn"
-    button.style.visibility ="hidden";
+    button.id = "showLegendBtn";
+    button.style.visibility = "hidden";
     button.onclick = () => {
       this.legendTexts.map((legendText) => {
         if (legendText.style.visibility == "hidden") {
@@ -497,4 +497,6 @@ let dataSet = [
   },
 ];
 
+
 let playerHandler = new AnaliticVideoPlayer(dataSet);
+
