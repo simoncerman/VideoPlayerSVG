@@ -276,7 +276,7 @@ class AnaliticVideoPlayer {
       x2: "0",
       y2: startingHeigth,
       stroke: "white",
-      "stroke-width": "1",
+      "stroke-width": "0.25%",
     });
     return line;
   }
@@ -307,11 +307,11 @@ class AnaliticVideoPlayer {
     );
 
     this.setMultipleAtributes(outerCircle, {
-      r: "9",
+      r: "1.5%",
       fill: "white",
     });
     this.setMultipleAtributes(innerCircle, {
-      r: "6",
+      r: "1%",
       fill: color,
     });
     this.setMultipleAtributes(legendText, {
@@ -320,7 +320,6 @@ class AnaliticVideoPlayer {
       y: "-20",
       fill: color,
       "font-family": "Arial, Helvetica, sans-serif",
-      "font-size":"1.3em"
     });
 
     legendText.innerHTML = txt;
@@ -348,7 +347,7 @@ class AnaliticVideoPlayer {
     this.setMultipleAtributes(path, {
       "d": d,
       "stroke": color,
-      "stroke-width": 5,
+      "stroke-width":"1%",
       "fill": "none",
     })
 
