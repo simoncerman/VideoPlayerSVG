@@ -320,6 +320,7 @@ class AnaliticVideoPlayer {
       y: "-20",
       fill: color,
       "font-family": "Arial, Helvetica, sans-serif",
+      "font-size":"1.3em"
     });
 
     legendText.innerHTML = txt;
@@ -344,10 +345,13 @@ class AnaliticVideoPlayer {
   generateStroke(points, color) {
     let d = this.pathHandler.svgPath(points, color);
     let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttributeNS(null, "d", d);
-    path.setAttributeNS(null, "stroke", color);
-    path.setAttributeNS(null, "stroke-width", 5);
-    path.setAttributeNS(null, "fill", "none");
+    this.setMultipleAtributes(path, {
+      "d": d,
+      "stroke": color,
+      "stroke-width": 5,
+      "fill": "none",
+    })
+
     return path;
   }
   
@@ -487,7 +491,7 @@ class AnaliticVideoPlayer {
 let dataSet = [
   {
     color: "#1BE7FF",
-    data: [70, 50, 90, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
+    data: [70, 50, 80, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
     legendText: "Brand",
   },
   {
