@@ -487,7 +487,7 @@ class AnaliticVideoPlayer {
 let dataSet = [
   {
     color: "#1BE7FF",
-    data: [70, 50, 76, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
+    data: [70, 50, 90, 90, 68, 50, 59, 60, 49, 40, 30, 31, 28, 10],
     legendText: "Brand",
   },
   {
@@ -495,6 +495,11 @@ let dataSet = [
     data: [15, 21, 60, 40, 50, 30, 50, 20, 70, 30, 40, 60, 80, 90],
     legendText: "Need",
   },
+  {
+    color: "#D06BFF",
+    data: [45, 40, 39, 55, 90, 74, 20, 20, 50, 49, 84, 20, 30, 21],
+    legendText: "Emotion",
+  }
 ];
 
 let playerHandler = new AnaliticVideoPlayer(dataSet);
