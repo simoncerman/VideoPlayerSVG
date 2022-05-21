@@ -6,6 +6,14 @@ class AnaliticVideoPlayer {
     this.videoPlayer = document.getElementById("video-player");
     this.video = document.getElementById("main-video");
 
+    this.settings ={
+      secoundSvgOpacity : "0.5",
+      mainStrokeOfCurveWidth: "0.75%",
+      verticalLineStrokeWidth : "0.25%",
+      outerCircleR : "1.5%",
+      innerCircleR : "1%",
+    }
+
     this.coverL;
     this.coverHolder;
     this.interval;
@@ -88,7 +96,7 @@ class AnaliticVideoPlayer {
     [...filled, ...strokes].forEach((element) => {
       svg.append(element);
     });
-    if (svgBefore) svg.style.opacity = "0.5";
+    if (svgBefore) svg.style.opacity = this.settings.secoundSvgOpacity;
     return svg;
   }
 
@@ -260,8 +268,10 @@ class AnaliticVideoPlayer {
       this.legendTexts.map((legendText) => {
         if (legendText.style.visibility == "hidden") {
           legendText.style.visibility = "visible";
+          button.innerHTML = "Hide legend";
         } else {
           legendText.style.visibility = "hidden";
+          button.innerHTML = "Show legend";
         }
       });
     };
@@ -276,7 +286,7 @@ class AnaliticVideoPlayer {
       x2: "0",
       y2: startingHeigth,
       stroke: "white",
-      "stroke-width": "1",
+      "stroke-width": this.settings.verticalLineStrokeWidth,
     });
     return line;
   }
@@ -307,20 +317,20 @@ class AnaliticVideoPlayer {
     );
 
     this.setMultipleAtributes(outerCircle, {
-      r: "9",
+      r: "1.5%",
       fill: "white",
     });
     this.setMultipleAtributes(innerCircle, {
-      r: "6",
+      r: "1%",
       fill: color,
     });
     this.setMultipleAtributes(legendText, {
       "dominant-baseline": "middle",
       "text-anchor": "middle",
-      y: "-20",
+      y: "-7%",
       fill: color,
       "font-family": "Arial, Helvetica, sans-serif",
-      "font-size":"1.3em"
+      "font-size":"larger"
     });
 
     legendText.innerHTML = txt;
@@ -348,10 +358,9 @@ class AnaliticVideoPlayer {
     this.setMultipleAtributes(path, {
       "d": d,
       "stroke": color,
-      "stroke-width": 5,
+      "stroke-width":this.settings.mainStrokeOfCurveWidth,
       "fill": "none",
     })
-
     return path;
   }
   
